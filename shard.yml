@@ -1,0 +1,11 @@
+name: school
+version: 0.1.0
+
+description: The School rules engine.
+
+authors:
+  - Todd Sundsted
+
+crystal: 1.2.2
+
+license: MIT
