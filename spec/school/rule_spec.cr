@@ -1,19 +1,6 @@
 require "../spec_helper"
 require "../../src/school/rule"
 
-# Every project must specify the types of objects used in the
-# domain. The tests use `String` and `Int32`.
-alias DomainTypes = String | Int32
-
-class MockFact < School::Fact
-end
-
-class MockProperty < School::Property(Int32)
-end
-
-class MockRelationship < School::Relationship(String, String)
-end
-
 Spectator.describe School::Var do
   describe ".new" do
     it "raises an error if the name is not valid" do
