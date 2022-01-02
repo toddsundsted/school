@@ -1,15 +1,38 @@
 require "./fact"
 
 module School
+  # Bindings.
+  #
+  alias Bindings = Hash(String, DomainTypes)
+
+  # Result.
+  #
+  # Holds the result of a match as well as any passed bindings.
+  #
+  private record Result, success : Bool, bindings : Bindings? = nil
+
+  # An expression.
+  #
+  abstract class Expression
+    # Matches the expression to a value.
+    #
+    abstract def match(value : DomainTypes) : Result
+  end
+
   # A variable.
   #
-  class Var
+  class Var < Expression
     NAME = /[a-z][a-z0-9_-]*/i
 
     getter name
 
     def initialize(@name : String)
       raise ArgumentError.new("#{@name.inspect} is not a valid name") unless @name =~ NAME
+    end
+
+    # :inherit:
+    def match(value : DomainTypes) : Result
+      Result.new(true, Bindings{@name => value})
     end
   end
 
@@ -48,8 +71,8 @@ module School
       {% begin %}
         {% ancestor = F.ancestors.find { |a| !a.type_vars.empty? } %}
         {% if F < Fact && ancestor && (types = ancestor.type_vars).size == 1 %}
-          {% unless C == types[0] || C == Var %}
-            {% raise "the argument must be #{types[0]} or Var, not #{C}" %}
+          {% unless C == types[0] || C < Expression %}
+            {% raise "the argument must be #{types[0]} or Expression, not #{C}" %}
           {% end %}
         {% else %}
           {% raise "#{F} is not a unary Fact" %}
@@ -76,11 +99,11 @@ module School
       {% begin %}
         {% ancestor = F.ancestors.find { |a| !a.type_vars.empty? } %}
         {% if F < Fact && ancestor && (types = ancestor.type_vars).size == 2 %}
-          {% unless A == types[0] || A == Var %}
-            {% raise "the first argument must be #{types[0]} or Var, not #{A}" %}
+          {% unless A == types[0] || A < Expression %}
+            {% raise "the first argument must be #{types[0]} or Expression, not #{A}" %}
           {% end %}
-          {% unless B == types[1] || B == Var %}
-            {% raise "the second argument must be #{types[1]} or Var, not #{B}" %}
+          {% unless B == types[1] || B < Expression %}
+            {% raise "the second argument must be #{types[1]} or Expression, not #{B}" %}
           {% end %}
         {% else %}
           {% raise "#{F} is not a binary Fact" %}
@@ -100,10 +123,6 @@ module School
       end
     end
   end
-
-  # Bindings.
-  #
-  alias Bindings = Hash(String, DomainTypes)
 
   # An action.
   #

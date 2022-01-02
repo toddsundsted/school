@@ -66,23 +66,32 @@ module School
                   if condition.is_a?(UnaryPattern)
                     if fact.c == condition.c
                       Bindings.new
-                    elsif (c = condition.c).is_a?(Var)
-                      Bindings{c.name => fact.c}
+                    elsif (c = condition.c).is_a?(Expression)
+                      match = c.match(fact.c)
+                      match.bindings if match.success
                     end
                   end
                 when Relationship
                   if condition.is_a?(BinaryPattern)
                     if fact.a == condition.a && fact.b == condition.b
                       Bindings.new
-                    elsif fact.a == condition.a && (b = condition.b).is_a?(Var)
-                      Bindings{b.name => fact.b}
-                    elsif fact.b == condition.b && (a = condition.a).is_a?(Var)
-                      Bindings{a.name => fact.a}
-                    elsif (a = condition.a).is_a?(Var) && (b = condition.b).is_a?(Var)
-                      if a.name != b.name
-                        Bindings{a.name => fact.a, b.name => fact.b}
-                      elsif fact.a == fact.b
-                        Bindings{a.name => fact.a}
+                    elsif fact.a == condition.a && (b = condition.b).is_a?(Expression)
+                      match = b.match(fact.b)
+                      match.bindings if match.success
+                    elsif fact.b == condition.b && (a = condition.a).is_a?(Expression)
+                      match = a.match(fact.a)
+                      match.bindings if match.success
+                    elsif (a = condition.a).is_a?(Expression) && (b = condition.b).is_a?(Expression)
+                      match_a = a.match(fact.a)
+                      match_b = b.match(fact.b)
+                      if match_a.success && match_b.success
+                        if (bindings_a = match_a.bindings) && (bindings_b = match_b.bindings)
+                          if (bindings_a.keys & bindings_b.keys).all? { |key| bindings_a[key] == bindings_b[key] }
+                            bindings_a.merge(bindings_b)
+                          end
+                        else
+                          match_a.bindings || match_b.bindings
+                        end
                       end
                     end
                   end

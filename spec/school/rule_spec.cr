@@ -7,6 +7,14 @@ Spectator.describe School::Var do
       expect{described_class.new("")}.to raise_error(ArgumentError)
     end
   end
+
+  describe "#match" do
+    subject { described_class.new("var") }
+
+    it "returns the bindings" do
+      expect(subject.match("value").bindings).to eq(School::Bindings{"var" => "value"})
+    end
+  end
 end
 
 Spectator.describe School::NullaryPattern do
