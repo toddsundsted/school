@@ -14,6 +14,48 @@ Spectator.describe School::Var do
     it "returns the bindings" do
       expect(subject.match("value").bindings).to eq(School::Bindings{"var" => "value"})
     end
+
+    context "nested in a not" do
+      subject { School::Not.new(described_class.new("var")) }
+
+      it "returns the bindings" do
+        expect(subject.match("value").bindings).to eq(School::Bindings{"var" => "value"})
+      end
+    end
+  end
+end
+
+Spectator.describe School::Not do
+  describe "#match" do
+    subject { described_class.new("target") }
+
+    it "returns true if the value does not match" do
+      expect(subject.match("value").success).to be_true
+    end
+
+    it "returns false if the value matches" do
+      expect(subject.match("target").success).to be_false
+    end
+
+    context "given a nested not" do
+      subject { described_class.new(described_class.new("target")) }
+
+      it "returns true if the value matches" do
+        expect(subject.match("target").success).to be_true
+      end
+
+      it "returns false if the value does not match" do
+        expect(subject.match("value").success).to be_false
+      end
+    end
+
+    context "given a nested var" do
+      subject { described_class.new(School::Var.new("var")) }
+
+      it "returns false" do
+        expect(subject.match("value").success).to be_false
+      end
+    end
   end
 end
 
@@ -203,6 +245,12 @@ Spectator.describe School::Rule::Builder do
   describe "#var" do
     it "allocates a new var" do
       expect(subject.var("i")).to be_a(School::Var)
+    end
+  end
+
+  describe "#not" do
+    it "allocates a new expression" do
+      expect(subject.not("target")).to be_a(School::Not)
     end
   end
 end

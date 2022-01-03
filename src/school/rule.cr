@@ -36,6 +36,24 @@ module School
     end
   end
 
+  # A "not" expression.
+  #
+  class Not < Expression
+    def initialize(@target : DomainTypes | Expression)
+    end
+
+    # :inherit:
+    def match(value : DomainTypes) : Result
+      case (target = @target)
+      in DomainTypes
+        Result.new(value != target)
+      in Expression
+        match = target.match(value)
+        Result.new(!match.success, match.bindings)
+      end
+    end
+  end
+
   # A pattern.
   #
   abstract class Pattern
@@ -220,6 +238,12 @@ module School
       #
       def var(name : String)
         @vars[name]
+      end
+
+      # Returns a not expression.
+      #
+      def not(any)
+        Not.new(any)
       end
 
       # Builds the rule.
