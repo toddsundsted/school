@@ -54,6 +54,30 @@ module School
     end
   end
 
+  # A "within" expression.
+  #
+  class Within < Expression
+    @targets : Array(DomainTypes | Var)
+
+    def initialize(*targets : DomainTypes | Var)
+      @targets = Array(DomainTypes | Var){*targets}
+    end
+
+    # :inherit:
+    def match(value : DomainTypes) : Result
+      result =
+        @targets.each do |target|
+          case target
+          in DomainTypes
+            break Result.new(true) if value == target
+          in Var
+            break target.match(value)
+          end
+        end
+      result || Result.new(false)
+    end
+  end
+
   # A pattern.
   #
   abstract class Pattern
@@ -244,6 +268,10 @@ module School
       #
       def not(any)
         Not.new(any)
+      end
+
+      def within(*any)
+        Within.new(*any)
       end
 
       # Builds the rule.

@@ -22,6 +22,14 @@ Spectator.describe School::Var do
         expect(subject.match("value").bindings).to eq(School::Bindings{"var" => "value"})
       end
     end
+
+    context "nested in a within" do
+      subject { School::Within.new(described_class.new("var")) }
+
+      it "returns the bindings" do
+        expect(subject.match("value").bindings).to eq(School::Bindings{"var" => "value"})
+      end
+    end
   end
 end
 
@@ -54,6 +62,28 @@ Spectator.describe School::Not do
 
       it "returns false" do
         expect(subject.match("value").success).to be_false
+      end
+    end
+  end
+end
+
+Spectator.describe School::Within do
+  describe "#match" do
+    subject { described_class.new("foo", "bar") }
+
+    it "returns true if the value is within the set" do
+      expect(subject.match("bar").success).to be_true
+    end
+
+    it "returns false if the value is not within the set" do
+      expect(subject.match("baz").success).to be_false
+    end
+
+    context "given a nested var" do
+      subject { described_class.new(School::Var.new("var")) }
+
+      it "returns true" do
+        expect(subject.match("baz").success).to be_true
       end
     end
   end
@@ -251,6 +281,12 @@ Spectator.describe School::Rule::Builder do
   describe "#not" do
     it "allocates a new expression" do
       expect(subject.not("target")).to be_a(School::Not)
+    end
+  end
+
+  describe "#within" do
+    it "allocates a new expression" do
+      expect(subject.within("target")).to be_a(School::Within)
     end
   end
 end
