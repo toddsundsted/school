@@ -5,8 +5,6 @@ module School
   # A domain is a collection of facts.
   #
   class Domain
-    @facts = Set(Fact).new
-
     # Returns the facts in the domain.
     #
     def facts
@@ -27,8 +25,6 @@ module School
       fact
     end
 
-    @rules = Set(Rule).new
-
     # Returns the rules in the domain.
     #
     def rules
@@ -47,6 +43,19 @@ module School
     def remove(rule : Rule) : Rule
       @rules.delete(rule) || raise ArgumentError.new("rule not in domain")
       rule
+    end
+
+    # Instantiates a new, empty domain.
+    #
+    def initialize
+      initialize(Set(Fact).new, Set(Rule).new)
+    end
+
+    # Instantiates a new domain.
+    #
+    # Used internally by the domain builder.
+    #
+    protected def initialize(@facts : Set(Fact), @rules : Set(Rule))
     end
 
     private record Match, rule : Rule, bindings : Bindings
@@ -144,5 +153,73 @@ module School
         match.rule.call(match.bindings)
       end
     end
+
+    # Domain builder.
+    #
+    # Used internally to build a domain with a DSL.
+    #
+    class Builder
+      @facts = Set(Fact).new
+      @rules = Set(Rule).new
+
+      def fact(f : Fact.class)
+        @facts << f.new
+        self
+      end
+
+      def fact(f : Fact.class, m)
+        @facts << f.new(m)
+        self
+      end
+
+      def fact(m, f : Fact.class)
+        @facts << f.new(m)
+        self
+      end
+
+      def fact(f : Fact.class, m1, m2)
+        @facts << f.new(m1, m2)
+        self
+      end
+
+      def fact(m1, f : Fact.class, m2)
+        @facts << f.new(m1, m2)
+        self
+      end
+
+      def fact(m1, m2, f : Fact.class)
+        @facts << f.new(m1, m2)
+        self
+      end
+
+      def rule(name, &block)
+        builder = Rule::Builder.new(name)
+        with builder yield
+        @rules << builder.build
+        self
+      end
+
+      def rule(rule : Rule)
+        @rules << rule
+        self
+      end
+
+      # Builds the domain.
+      #
+      # Every invocation returns the same domain (it is built once and
+      # memoized).
+      #
+      def build
+        @domain ||= Domain.new(@facts, @rules)
+      end
+    end
+  end
+
+  # Presents a DSL for defining domains.
+  #
+  def self.domain(&block)
+    builder = Domain::Builder.new
+    with builder yield
+    builder.build
   end
 end
