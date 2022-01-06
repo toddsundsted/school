@@ -191,12 +191,10 @@ module School
       @actions.dup
     end
 
-    @vars : Enumerable(String)?
-
     # Returns the variables in the conditions.
     #
     def vars : Enumerable(String)
-      @vars ||= @conditions.reduce(Set(String).new) { |vars, pattern| vars.concat(pattern.vars) }
+      @conditions.reduce(Set(String).new) { |vars, pattern| vars.concat(pattern.vars) }
     end
 
     # Invokes the rule's actions.
