@@ -1,15 +1,6 @@
 require "../spec_helper"
 require "../../src/school/fact"
 
-class MockFact < School::Fact
-end
-
-class MockProperty < School::Property(Int32)
-end
-
-class MockRelationship < School::Relationship(String, String)
-end
-
 Spectator.describe School::Fact do
   describe ".new" do
     it "instantiates a new fact" do
