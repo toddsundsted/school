@@ -2,6 +2,11 @@ module School
   # A fact is a statement that asserts a truth.
   #
   abstract class Fact
+    protected def _class
+      self.class
+    end
+
+    def_equals_and_hash _class
   end
 
   # A fact that asserts a property.
@@ -10,6 +15,8 @@ module School
   #
   abstract class Property(C) < Fact
     getter c
+
+    def_equals_and_hash _class, c
 
     def initialize(@c : C)
     end
@@ -21,6 +28,8 @@ module School
   #
   abstract class Relationship(A, B) < Fact
     getter a, b
+
+    def_equals_and_hash _class, a, b
 
     def initialize(@a : A, @b : B)
     end

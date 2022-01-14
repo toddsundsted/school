@@ -466,8 +466,8 @@ Spectator.describe School::Domain do
       before_each do
         subject.add(
           School.rule "rule" do
-            condition MockFact
-            condition MockFact
+            condition MockProperty, var("n")
+            condition MockProperty, var("m")
             action action
           end
         )
@@ -479,28 +479,28 @@ Spectator.describe School::Domain do
 
       context "and a matching fact" do
         before_each do
-          subject.assert(MockFact.new)
+          subject.assert(MockProperty.new(123))
         end
 
         it "invokes the action" do
           expect{subject.run}.to change{output.dup}.to([
-            "rule:"
+            "rule: n=123 m=123"
           ])
         end
       end
 
       context "and multiple matching facts" do
         before_each do
-          subject.assert(MockFact.new)
-          subject.assert(MockFact.new)
+          subject.assert(MockProperty.new(123))
+          subject.assert(MockProperty.new(890))
         end
 
         it "invokes the action for each match" do
           expect{subject.run}.to change{output.dup}.to([
-            "rule:",
-            "rule:",
-            "rule:",
-            "rule:"
+            "rule: n=123 m=123",
+            "rule: n=123 m=890",
+            "rule: n=890 m=123",
+            "rule: n=890 m=890"
           ])
         end
       end
