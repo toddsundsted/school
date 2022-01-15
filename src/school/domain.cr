@@ -5,6 +5,8 @@ module School
   # A domain is a collection of facts.
   #
   class Domain
+    @changed = false
+
     # Returns the facts in the domain.
     #
     def facts
@@ -15,6 +17,7 @@ module School
     #
     def assert(fact : Fact) : Fact
       @facts.add(fact)
+      @changed = true
       fact
     end
 
@@ -22,6 +25,7 @@ module School
     #
     def retract(fact : Fact) : Fact
       @facts.delete(fact) || raise ArgumentError.new("fact not in domain")
+      @changed = true
       fact
     end
 
@@ -35,6 +39,7 @@ module School
     #
     def add(rule : Rule) : Rule
       @rules.add(rule)
+      @changed = true
       rule
     end
 
@@ -42,6 +47,7 @@ module School
     #
     def remove(rule : Rule) : Rule
       @rules.delete(rule) || raise ArgumentError.new("rule not in domain")
+      @changed = true
       rule
     end
 
@@ -143,15 +149,25 @@ module School
       end
     end
 
+    # The status of the run.
+    #
+    enum Status
+      Completed
+      Paused
+    end
+
     # Runs the rules engine.
     #
     # First, matches rules' conditions to facts, and then invokes
     # rules' actions for each distinct match.
     #
     def run
+      @changed = false
       match_all.each do |match|
         match.rule.call(match.bindings)
+        return Status::Paused if @changed
       end
+      Status::Completed
     end
 
     # Domain builder.
