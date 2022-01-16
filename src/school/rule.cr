@@ -99,7 +99,6 @@ module School
 
     # :inherit:
     def vars : Enumerable(String)
-      [] of String
       Set(String).new
     end
   end
