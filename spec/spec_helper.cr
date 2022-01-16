@@ -1,5 +1,3 @@
-require "../src/school"
-
 require "spectator"
 require "yaml"
 
