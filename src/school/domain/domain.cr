@@ -1,5 +1,4 @@
-require "./fact"
-require "./rule"
+require "../rule"
 
 module School
   # A domain is a collection of facts.
@@ -169,73 +168,5 @@ module School
       end
       Status::Completed
     end
-
-    # Domain builder.
-    #
-    # Used internally to build a domain with a DSL.
-    #
-    class Builder
-      @facts = Set(Fact).new
-      @rules = Set(Rule).new
-
-      def fact(f : Fact.class)
-        @facts << f.new
-        self
-      end
-
-      def fact(f : Fact.class, m)
-        @facts << f.new(m)
-        self
-      end
-
-      def fact(m, f : Fact.class)
-        @facts << f.new(m)
-        self
-      end
-
-      def fact(f : Fact.class, m1, m2)
-        @facts << f.new(m1, m2)
-        self
-      end
-
-      def fact(m1, f : Fact.class, m2)
-        @facts << f.new(m1, m2)
-        self
-      end
-
-      def fact(m1, m2, f : Fact.class)
-        @facts << f.new(m1, m2)
-        self
-      end
-
-      def rule(name, &block)
-        builder = Rule::Builder.new(name)
-        with builder yield
-        @rules << builder.build
-        self
-      end
-
-      def rule(rule : Rule)
-        @rules << rule
-        self
-      end
-
-      # Builds the domain.
-      #
-      # Every invocation returns the same domain (it is built once and
-      # memoized).
-      #
-      def build
-        @domain ||= Domain.new(@facts, @rules)
-      end
-    end
-  end
-
-  # Presents a DSL for defining domains.
-  #
-  def self.domain(&block)
-    builder = Domain::Builder.new
-    with builder yield
-    builder.build
   end
 end
