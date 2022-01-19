@@ -65,40 +65,23 @@ module School
 
     private record Match, rule : Rule, bindings : Bindings
 
-    private record Satisfaction, condition : Pattern, matches : Indexable(Bindings)
-
-    private def each_match(rule)
-      # For each condition, find every fact that satisfies the
-      # condition. Capture the values bound to any vars.
-      satisfactions =
-        rule.conditions.map do |condition|
-          matches = facts.map { |fact| condition.match(fact) }.compact
-          Satisfaction.new(condition, matches)
-        end
-
-      # If all conditions have matching rules, group them and yield
-      # every group where the bound values are consistent.
-      unless satisfactions.any?(&.matches.empty?)
-        Indexable.each_cartesian(satisfactions.map(&.matches), reuse: true) do |satisfaction|
-          conflicts = false
-          bindings = satisfaction.reduce(Bindings.new) do |a, b|
-            if b.any? { |k, v| a.has_key?(k) && a[k] != v }
-              conflicts = true
-              break
-            end
-            a.merge(b)
-          end
-          if bindings && !conflicts
-            yield(bindings)
+    private def each_match(conditions : Array(Pattern), bindings = Bindings.new, &block : Bindings ->)
+      if (condition = conditions.first?)
+        facts.each do |fact|
+          if (temporary = condition.match(fact))
+            next if temporary.any? { |k, v| bindings.has_key?(k) && bindings[k] != v }
+            each_match(conditions[1..-1], bindings.merge(temporary), &block)
           end
         end
+      else
+        block.call(bindings)
       end
     end
 
     private def match_all
       Array(Match).new.tap do |matches|
         rules.each do |rule|
-          each_match(rule) do |bindings|
+          each_match(rule.conditions) do |bindings|
             matches << Match.new(rule, bindings)
           end
         end

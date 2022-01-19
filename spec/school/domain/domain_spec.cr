@@ -518,5 +518,21 @@ Spectator.describe School::Domain do
         end
       end
     end
+
+    context "when a rule has no conditions" do
+      before_each do
+        subject.add(
+          School.rule "rule" do
+            action action
+          end
+        )
+      end
+
+      it "invokes the action" do
+        expect{subject.run}.to change{output.dup}.to([
+          "rule:"
+        ])
+      end
+    end
   end
 end
