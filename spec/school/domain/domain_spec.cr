@@ -475,50 +475,6 @@ Spectator.describe School::Domain do
       end
     end
 
-    context "beware of under-constrained conditions" do
-      before_each do
-        subject.add(
-          School.rule "rule" do
-            condition MockProperty, var("n")
-            condition MockProperty, var("m")
-            action action
-          end
-        )
-      end
-
-      it "does not invoke the action" do
-        expect{subject.run}.not_to change{output.dup}
-      end
-
-      context "and a matching fact" do
-        before_each do
-          subject.assert(MockProperty.new(123))
-        end
-
-        it "invokes the action" do
-          expect{subject.run}.to change{output.dup}.to([
-            "rule: n=123 m=123"
-          ])
-        end
-      end
-
-      context "and multiple matching facts" do
-        before_each do
-          subject.assert(MockProperty.new(123))
-          subject.assert(MockProperty.new(890))
-        end
-
-        it "invokes the action for each match" do
-          expect{subject.run}.to change{output.dup}.to([
-            "rule: n=123 m=123",
-            "rule: n=123 m=890",
-            "rule: n=890 m=123",
-            "rule: n=890 m=890"
-          ])
-        end
-      end
-    end
-
     context "when a rule has no conditions" do
       before_each do
         subject.add(
