@@ -76,6 +76,44 @@ Spectator.describe School::Rule::Builder do
     end
   end
 
+  describe "#none" do
+    # nullary condition
+
+    it "adds a condition to the rule" do
+      expect{subject.none(MockFact)}.to change{subject.build.conditions.size}
+    end
+
+    # unary condition, first argument
+
+    it "adds a condition to the rule" do
+      expect{subject.none(MockProperty, 0)}.to change{subject.build.conditions.size}
+    end
+
+    # unary condition, second argument
+
+    it "adds a condition to the rule" do
+      expect{subject.none(0, MockProperty)}.to change{subject.build.conditions.size}
+    end
+
+    # binary condition, first argument
+
+    it "adds a condition to the rule" do
+      expect{subject.none(MockRelationship, "a", "b")}.to change{subject.build.conditions.size}
+    end
+
+    # binary condition, second argument
+
+    it "adds a condition to the rule" do
+      expect{subject.none("a", MockRelationship, "b")}.to change{subject.build.conditions.size}
+    end
+
+    # binary condition, third argument
+
+    it "adds a condition to the rule" do
+      expect{subject.none("a", "b", MockRelationship)}.to change{subject.build.conditions.size}
+    end
+  end
+
   describe "#action" do
     # given a block
 

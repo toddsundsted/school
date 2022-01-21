@@ -43,6 +43,36 @@ module School
         self
       end
 
+      def none(f : Fact.class)
+        @conditions << Pattern::None.new(NullaryPattern.new(f))
+        self
+      end
+
+      def none(f : Fact.class, m)
+        @conditions << Pattern::None.new(UnaryPattern.new(f, m))
+        self
+      end
+
+      def none(m, f : Fact.class)
+        @conditions << Pattern::None.new(UnaryPattern.new(f, m))
+        self
+      end
+
+      def none(f : Fact.class, m1, m2)
+        @conditions << Pattern::None.new(BinaryPattern.new(f, m1, m2))
+        self
+      end
+
+      def none(m1, f : Fact.class, m2)
+        @conditions << Pattern::None.new(BinaryPattern.new(f, m1, m2))
+        self
+      end
+
+      def none(m1, m2, f : Fact.class)
+        @conditions << Pattern::None.new(BinaryPattern.new(f, m1, m2))
+        self
+      end
+
       def action(&action : Action)
         @actions << action
         self
