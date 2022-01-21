@@ -14,6 +14,24 @@ module School
     # Indicates whether or not the fact matches the pattern.
     #
     abstract def match(fact : Fact) : Bindings?
+
+    # A special pattern that indicates a condition that is satisfied
+    # if and only if no facts match the wrapped pattern.
+    #
+    class None < Pattern
+      def initialize(@pattern : Pattern)
+      end
+
+      # :inherit:
+      def vars : Enumerable(String)
+        @pattern.vars
+      end
+
+      # :inherit:
+      def match(fact : Fact) : Bindings?
+        @pattern.match(fact)
+      end
+    end
   end
 
   # A pattern that matches a fact.

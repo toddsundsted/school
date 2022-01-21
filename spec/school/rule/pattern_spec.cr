@@ -147,3 +147,31 @@ Spectator.describe School::BinaryPattern do
     end
   end
 end
+
+Spectator.describe School::Pattern::None do
+  describe ".new" do
+    it "instantiates a new pattern by wrapping a pattern" do
+      expect(described_class.new(School::NullaryPattern.new(MockFact))).to be_a(School::Pattern)
+    end
+  end
+
+  describe "#vars" do
+    subject { described_class.new(School::BinaryPattern.new(MockRelationship, School::Var.new("m"), School::Var.new("n"))) }
+
+    it "returns the vars in the wrapped pattern" do
+      expect(subject.vars).to contain_exactly("m", "n")
+    end
+  end
+
+  describe "#match" do
+    it "returns nil if the fact does not match the wrapped pattern" do
+      fact = MockFact.new
+      expect(described_class.new(School::UnaryPattern.new(MockProperty, 123)).match(fact)).to be_nil
+    end
+
+    it "returns the bindings if the fact matches the wrapped pattern" do
+      fact = MockProperty.new(123)
+      expect(described_class.new(School::UnaryPattern.new(MockProperty, 123)).match(fact)).to be_empty
+    end
+  end
+end
