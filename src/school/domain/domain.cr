@@ -65,12 +65,25 @@ module School
 
     private record Match, rule : Rule, bindings : Bindings
 
+    private def match(condition : Pattern, fact : Fact, bindings : Bindings)
+      if (temporary = condition.match(fact))
+        if temporary.none? { |k, v| bindings.has_key?(k) && bindings[k] != v }
+          bindings.merge(temporary)
+        end
+      end
+    end
+
     private def each_match(conditions : Array(Pattern), bindings = Bindings.new, &block : Bindings ->)
       if (condition = conditions.first?)
-        facts.each do |fact|
-          if (temporary = condition.match(fact))
-            next if temporary.any? { |k, v| bindings.has_key?(k) && bindings[k] != v }
-            each_match(conditions[1..-1], bindings.merge(temporary), &block)
+        if condition.is_a?(Pattern::None)
+          if facts.none? { |fact| match(condition, fact, bindings) }
+            each_match(conditions[1..-1], bindings, &block)
+          end
+        else
+          facts.each do |fact|
+            if (temporary = match(condition, fact, bindings))
+              each_match(conditions[1..-1], temporary, &block)
+            end
           end
         end
       else
