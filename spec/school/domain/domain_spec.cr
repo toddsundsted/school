@@ -491,6 +491,327 @@ Spectator.describe School::Domain do
       end
     end
 
+    context "with keyword `any`" do
+      context "given a simple rule" do
+        before_each do
+          subject.add(
+            School.rule "rule" do
+              any MockRelationship, "foo", "bar"
+              action action
+            end
+          )
+        end
+
+        it "does not invoke the action if no facts exist" do
+          expect{subject.run}.not_to change{output.dup}
+        end
+
+        context "and a matching fact" do
+          before_each do
+            subject.assert(MockRelationship.new("foo", "bar"))
+          end
+
+          it "invokes the action" do
+            expect{subject.run}.to change{output.dup}.to([
+              "rule:"
+            ])
+          end
+        end
+
+        context "and a non-matching fact" do
+          before_each do
+            subject.assert(MockRelationship.new("bar", "foo"))
+          end
+
+          it "does not invoke the action" do
+            expect{subject.run}.not_to change{output.dup}
+          end
+        end
+      end
+
+      context "given a simple rule with one var" do
+        before_each do
+          subject.add(
+            School.rule "rule" do
+              any MockRelationship, "foo", var("value")
+              action action
+            end
+          )
+        end
+
+        it "does not invoke the action if no facts exist" do
+          expect{subject.run}.not_to change{output.dup}
+        end
+
+        context "and a matching fact" do
+          before_each do
+            subject.assert(MockRelationship.new("foo", "123"))
+          end
+
+          it "invokes the action" do
+            expect{subject.run}.to change{output.dup}.to([
+              "rule:"
+            ])
+          end
+        end
+
+        context "and a non-matching fact" do
+          before_each do
+            subject.assert(MockRelationship.new("bar", "123"))
+          end
+
+          it "does not invoke the action" do
+            expect{subject.run}.not_to change{output.dup}
+          end
+        end
+
+        context "and multiple matching facts" do
+          before_each do
+            subject.assert(MockRelationship.new("foo", "123"))
+            subject.assert(MockRelationship.new("foo", "abc"))
+          end
+
+          it "invokes the action" do
+            expect{subject.run}.to change{output.dup}.to([
+              "rule:"
+            ])
+          end
+        end
+
+        context "and multiple non-matching facts" do
+          before_each do
+            subject.assert(MockRelationship.new("bar", "123"))
+            subject.assert(MockRelationship.new("bar", "abc"))
+          end
+
+          it "does not invoke the action" do
+            expect{subject.run}.not_to change{output.dup}
+          end
+        end
+      end
+
+      context "given a simple rule with two constrained vars" do
+        before_each do
+          subject.add(
+            School.rule "rule" do
+              any MockRelationship, var("value"), var("value")
+              action action
+            end
+          )
+        end
+
+        it "does not invoke the action if no facts exist" do
+          expect{subject.run}.not_to change{output.dup}
+        end
+
+        context "and a matching fact" do
+          before_each do
+            subject.assert(MockRelationship.new("foo", "foo"))
+          end
+
+          it "invokes the action" do
+            expect{subject.run}.to change{output.dup}.to([
+              "rule:"
+            ])
+          end
+        end
+
+        context "and a non-matching fact" do
+          before_each do
+            subject.assert(MockRelationship.new("foo", "bar"))
+          end
+
+          it "does not invoke the action" do
+            expect{subject.run}.not_to change{output.dup}
+          end
+        end
+
+        context "and a non-matching fact" do
+          before_each do
+            subject.assert(MockRelationship.new("bar", "foo"))
+          end
+
+          it "does not invoke the action" do
+            expect{subject.run}.not_to change{output.dup}
+          end
+        end
+      end
+
+      context "given a simple rule with two vars" do
+        before_each do
+          subject.add(
+            School.rule "rule" do
+              any MockRelationship, var("value1"), var("value2")
+              action action
+            end
+          )
+        end
+
+        it "does not invoke the action if no facts exist" do
+          expect{subject.run}.not_to change{output.dup}
+        end
+
+        context "and a matching fact" do
+          before_each do
+            subject.assert(MockRelationship.new("foo", "bar"))
+          end
+
+          it "invokes the action" do
+            expect{subject.run}.to change{output.dup}.to([
+              "rule:"
+            ])
+          end
+        end
+
+        context "and a non-matching fact" do
+          before_each do
+            subject.assert(MockFact.new)
+          end
+
+          it "does not invoke the action" do
+            expect{subject.run}.not_to change{output.dup}
+          end
+        end
+      end
+
+      context "given a complex rule with two vars" do
+        before_each do
+          subject.add(
+            School.rule "rule" do
+              any MockRelationship, var("value1"), "bar"
+              any MockRelationship, "foo", var("value2")
+              action action
+            end
+          )
+        end
+
+        it "does not invoke the action if no facts exist" do
+          expect{subject.run}.not_to change{output.dup}
+        end
+
+        context "and a matching fact" do
+          before_each do
+            subject.assert(MockRelationship.new("foo", "bar"))
+          end
+
+          it "invokes the action" do
+            expect{subject.run}.to change{output.dup}.to([
+              "rule:"
+            ])
+          end
+        end
+
+        context "and a non-matching fact" do
+          before_each do
+            subject.assert(MockRelationship.new("bar", "foo"))
+          end
+
+          it "does not invoke the action" do
+            expect{subject.run}.not_to change{output.dup}
+          end
+        end
+      end
+
+      context "given a complex rule with two constrained vars" do
+        before_each do
+          subject.add(
+            School.rule "rule" do
+              any MockRelationship, var("value"), "one"
+              any MockRelationship, var("value"), "two"
+              action action
+            end
+          )
+        end
+
+        it "does not invoke the action if no facts exist" do
+          expect{subject.run}.not_to change{output.dup}
+        end
+
+        context "and matching facts" do
+          before_each do
+            subject.assert(MockRelationship.new("foo", "one"))
+            subject.assert(MockRelationship.new("foo", "two"))
+          end
+
+          it "invokes the action" do
+            expect{subject.run}.to change{output.dup}.to([
+              "rule:"
+            ])
+          end
+        end
+
+        context "and one matching fact" do
+          before_each do
+            subject.assert(MockRelationship.new("foo", "one"))
+          end
+
+          it "does not invoke the action" do
+            expect{subject.run}.not_to change{output.dup}
+          end
+        end
+
+        context "and one matching fact" do
+          before_each do
+            subject.assert(MockRelationship.new("foo", "two"))
+          end
+
+          it "does not invoke the action" do
+            expect{subject.run}.not_to change{output.dup}
+          end
+        end
+
+        context "and two independently matching facts" do
+          before_each do
+            subject.assert(MockRelationship.new("bar", "one"))
+            subject.assert(MockRelationship.new("baz", "two"))
+          end
+
+          it "invokes the action" do
+            expect{subject.run}.to change{output.dup}.to([
+              "rule:"
+            ])
+          end
+        end
+      end
+
+      context "given a complex rule" do
+        before_each do
+          subject.add(
+            School.rule "rule" do
+              any MockProperty, 123
+              any MockProperty, 890
+              action action
+            end
+          )
+        end
+
+        it "does not invoke the action if no facts exist" do
+          expect{subject.run}.not_to change{output.dup}
+        end
+
+        context "and a non-matching fact" do
+          before_each do
+            subject.assert(MockProperty.new(444))
+          end
+
+          it "does not invoke the action" do
+            expect{subject.run}.not_to change{output.dup}
+          end
+        end
+
+        context "and multiple non-matching facts" do
+          before_each do
+            subject.assert(MockProperty.new(555))
+            subject.assert(MockProperty.new(666))
+          end
+
+          it "does not invoke the action" do
+            expect{subject.run}.not_to change{output.dup}
+          end
+        end
+      end
+    end
+
     context "with keyword `none`" do
       context "given a simple rule" do
         before_each do
