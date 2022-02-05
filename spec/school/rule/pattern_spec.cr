@@ -21,14 +21,16 @@ Spectator.describe School::NullaryPattern do
   end
 
   describe "#match" do
-    it "returns empty bindings if the fact matches" do
+    let(bindings) { School::Bindings.new }
+
+    it "returns the bindings if the fact matches" do
       fact = MockFact.new
-      expect(described_class.new(MockFact).match(fact)).to be_empty
+      expect(described_class.new(MockFact).match(fact, bindings)).to eq(bindings)
     end
 
     it "returns nil if the fact does not match" do
       fact = MockProperty.new(123)
-      expect(described_class.new(MockFact).match(fact)).to be_nil
+      expect(described_class.new(MockFact).match(fact, bindings)).to be_nil
     end
   end
 end
@@ -59,24 +61,36 @@ Spectator.describe School::UnaryPattern do
   end
 
   describe "#match" do
-    it "returns empty bindings if the fact matches" do
+    let(bindings) { School::Bindings{"z" => "zzz"} }
+
+    it "returns the bindings if the fact matches" do
       fact = MockProperty.new(123)
-      expect(described_class.new(MockProperty, 123).match(fact)).to be_empty
+      expect(described_class.new(MockProperty, 123).match(fact, bindings)).to eq(bindings)
+    end
+
+    it "merges the bindings if the fact matches" do
+      fact = MockProperty.new(123)
+      expect(described_class.new(MockProperty, School::Var.new("c")).match(fact, bindings)).to eq(School::Bindings{"c" => 123, "z" => "zzz"})
     end
 
     it "returns the bindings if the fact matches" do
       fact = MockProperty.new(123)
-      expect(described_class.new(MockProperty, School::Var.new("c")).match(fact)).to eq(School::Bindings{"c" => 123})
+      expect(described_class.new(MockProperty, School::Var.new("c")).match(fact, School::Bindings{"c" => 123})).to eq(School::Bindings{"c" => 123})
+    end
+
+    it "returns nil if the fact does not match" do
+      fact = MockProperty.new(123)
+      expect(described_class.new(MockProperty, School::Var.new("c")).match(fact, School::Bindings{"c" => 890})).to be_nil
     end
 
     it "returns nil if the fact does not match" do
       fact = MockProperty.new(890)
-      expect(described_class.new(MockProperty, 123).match(fact)).to be_nil
+      expect(described_class.new(MockProperty, 123).match(fact, bindings)).to be_nil
     end
 
     it "returns nil if the fact does not match" do
       fact = MockFact.new
-      expect(described_class.new(MockProperty, 123).match(fact)).to be_nil
+      expect(described_class.new(MockProperty, 123).match(fact, bindings)).to be_nil
     end
   end
 end
@@ -111,39 +125,76 @@ Spectator.describe School::BinaryPattern do
   end
 
   describe "#match" do
-    it "returns empty bindings if the fact matches" do
+    let(bindings) { School::Bindings{"z" => "zzz"} }
+
+    it "returns the bindings if the fact matches" do
       fact = MockRelationship.new("abc", "xyz")
-      expect(described_class.new(MockRelationship, "abc", "xyz").match(fact)).to be_empty
+      expect(described_class.new(MockRelationship, "abc", "xyz").match(fact, bindings)).to eq(bindings)
+    end
+
+    it "merges the bindings if the fact matches" do
+      fact = MockRelationship.new("abc", "xyz")
+      expect(described_class.new(MockRelationship, School::Var.new("a"), "xyz").match(fact, bindings)).to eq(School::Bindings{"a" => "abc", "z" => "zzz"})
     end
 
     it "returns the bindings if the fact matches" do
       fact = MockRelationship.new("abc", "xyz")
-      expect(described_class.new(MockRelationship, School::Var.new("a"), "xyz").match(fact)).to eq(School::Bindings{"a" => "abc"})
+      expect(described_class.new(MockRelationship, School::Var.new("a"), "xyz").match(fact, School::Bindings{"a" => "abc"})).to eq(School::Bindings{"a" => "abc"})
+    end
+
+    it "returns nil if the fact does not match" do
+      fact = MockRelationship.new("abc", "xyz")
+      expect(described_class.new(MockRelationship, School::Var.new("a"), "xyz").match(fact, School::Bindings{"a" => "zzz"})).to be_nil
+    end
+
+    it "merges the bindings if the fact matches" do
+      fact = MockRelationship.new("abc", "xyz")
+      expect(described_class.new(MockRelationship, "abc", School::Var.new("b")).match(fact, bindings)).to eq(School::Bindings{"b" => "xyz", "z" => "zzz"})
     end
 
     it "returns the bindings if the fact matches" do
       fact = MockRelationship.new("abc", "xyz")
-      expect(described_class.new(MockRelationship, "abc", School::Var.new("b")).match(fact)).to eq(School::Bindings{"b" => "xyz"})
+      expect(described_class.new(MockRelationship, "abc", School::Var.new("b")).match(fact, School::Bindings{"b" => "xyz"})).to eq(School::Bindings{"b" => "xyz"})
     end
 
-    it "returns the bindings if the facts match" do
+    it "returns nil if the fact does not match" do
       fact = MockRelationship.new("abc", "xyz")
-      expect(described_class.new(MockRelationship, School::Var.new("a"), School::Var.new("b")).match(fact)).to eq(School::Bindings{"a" => "abc", "b" => "xyz"})
+      expect(described_class.new(MockRelationship, "abc", School::Var.new("b")).match(fact, School::Bindings{"b" => "zzz"})).to be_nil
+    end
+
+    it "merges the bindings if the facts match" do
+      fact = MockRelationship.new("abc", "xyz")
+      expect(described_class.new(MockRelationship, School::Var.new("a"), School::Var.new("b")).match(fact, bindings)).to eq(School::Bindings{"a" => "abc", "b" => "xyz", "z" => "zzz"})
+    end
+
+    it "returns the bindings if the fact matches" do
+      fact = MockRelationship.new("abc", "xyz")
+      expect(described_class.new(MockRelationship, School::Var.new("a"), School::Var.new("b")).match(fact, School::Bindings{"a" => "abc", "b" => "xyz"})).to eq(School::Bindings{"a" => "abc", "b" => "xyz"})
+    end
+
+    it "returns nil if the fact does not match" do
+      fact = MockRelationship.new("abc", "xyz")
+      expect(described_class.new(MockRelationship, School::Var.new("a"), School::Var.new("b")).match(fact, School::Bindings{"a" => "zzz", "b" => "zzz"})).to be_nil
+    end
+
+    it "returns nil if the fact does not match" do
+      fact = MockRelationship.new("abc", "xyz")
+      expect(described_class.new(MockRelationship, School::Var.new("v"), School::Var.new("v")).match(fact, bindings)).to be_nil
     end
 
     it "returns nil if the fact does not match" do
       fact = MockRelationship.new("abc", "123")
-      expect(described_class.new(MockRelationship, "abc", "xyz").match(fact)).to be_nil
+      expect(described_class.new(MockRelationship, "abc", "xyz").match(fact, bindings)).to be_nil
     end
 
     it "returns nil if the fact does not match" do
       fact = MockRelationship.new("123", "xyz")
-      expect(described_class.new(MockRelationship, "abc", "xyz").match(fact)).to be_nil
+      expect(described_class.new(MockRelationship, "abc", "xyz").match(fact, bindings)).to be_nil
     end
 
     it "returns nil if the fact does not match" do
       fact = MockFact.new
-      expect(described_class.new(MockRelationship, "abc", "xyz").match(fact)).to be_nil
+      expect(described_class.new(MockRelationship, "abc", "xyz").match(fact, bindings)).to be_nil
     end
   end
 end
@@ -164,14 +215,16 @@ Spectator.describe School::Pattern::Any do
   end
 
   describe "#match" do
+    let(bindings) { School::Bindings.new }
+
     it "returns nil if the fact does not match the wrapped pattern" do
       fact = MockFact.new
-      expect(described_class.new(School::UnaryPattern.new(MockProperty, 123)).match(fact)).to be_nil
+      expect(described_class.new(School::UnaryPattern.new(MockProperty, 123)).match(fact, bindings)).to be_nil
     end
 
     it "returns the bindings if the fact matches the wrapped pattern" do
       fact = MockProperty.new(123)
-      expect(described_class.new(School::UnaryPattern.new(MockProperty, 123)).match(fact)).to be_empty
+      expect(described_class.new(School::UnaryPattern.new(MockProperty, 123)).match(fact, bindings)).to be_empty
     end
   end
 end
@@ -192,14 +245,16 @@ Spectator.describe School::Pattern::None do
   end
 
   describe "#match" do
+    let(bindings) { School::Bindings.new }
+
     it "returns nil if the fact does not match the wrapped pattern" do
       fact = MockFact.new
-      expect(described_class.new(School::UnaryPattern.new(MockProperty, 123)).match(fact)).to be_nil
+      expect(described_class.new(School::UnaryPattern.new(MockProperty, 123)).match(fact, bindings)).to be_nil
     end
 
     it "returns the bindings if the fact matches the wrapped pattern" do
       fact = MockProperty.new(123)
-      expect(described_class.new(School::UnaryPattern.new(MockProperty, 123)).match(fact)).to be_empty
+      expect(described_class.new(School::UnaryPattern.new(MockProperty, 123)).match(fact, bindings)).to be_empty
     end
   end
 end

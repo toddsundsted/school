@@ -13,7 +13,23 @@ module School
 
     # Indicates whether or not the fact matches the pattern.
     #
-    abstract def match(fact : Fact) : Bindings?
+    abstract def match(fact : Fact, bindings : Bindings) : Bindings?
+
+    # Checks the result for binding conflicts.
+    #
+    # Returns the merged bindings.
+    #
+    protected def check_result(result : Result, bindings : Bindings)
+      if result.success
+        if (temporary = result.bindings)
+          if temporary.none? { |k, v| bindings.has_key?(k) && bindings[k] != v }
+            bindings.merge(temporary)
+          end
+        else
+          bindings
+        end
+      end
+    end
 
     # A special pattern that indicates a condition that is satisfied
     # if and only if at least one fact matches the wrapped pattern.
@@ -28,8 +44,8 @@ module School
       end
 
       # :inherit:
-      def match(fact : Fact) : Bindings?
-        @pattern.match(fact)
+      def match(fact : Fact, bindings : Bindings) : Bindings?
+        @pattern.match(fact, bindings)
       end
     end
 
@@ -46,8 +62,8 @@ module School
       end
 
       # :inherit:
-      def match(fact : Fact) : Bindings?
-        @pattern.match(fact)
+      def match(fact : Fact, bindings : Bindings) : Bindings?
+        @pattern.match(fact, bindings)
       end
     end
   end
@@ -67,9 +83,9 @@ module School
     end
 
     # :inherit:
-    def match(fact : Fact) : Bindings?
+    def match(fact : Fact, bindings : Bindings) : Bindings?
       if fact.is_a?(F)
-        Bindings.new
+        bindings
       end
     end
   end
@@ -102,13 +118,12 @@ module School
     end
 
     # :inherit:
-    def match(fact : Fact) : Bindings?
+    def match(fact : Fact, bindings : Bindings) : Bindings?
       if fact.is_a?(F)
         if fact.c == self.c
-          Bindings.new
+          bindings
         elsif (c = self.c).is_a?(Expression)
-          match = c.match(fact.c)
-          match.bindings if match.success
+          check_result(c.match(fact.c), bindings)
         end
       end
     end
@@ -148,27 +163,17 @@ module School
     end
 
     # :inherit:
-    def match(fact : Fact) : Bindings?
+    def match(fact : Fact, bindings : Bindings) : Bindings?
       if fact.is_a?(F)
         if fact.a == self.a && fact.b == self.b
-          Bindings.new
+          bindings
         elsif fact.a == self.a && (b = self.b).is_a?(Expression)
-          match = b.match(fact.b)
-          match.bindings if match.success
+          check_result(b.match(fact.b), bindings)
         elsif fact.b == self.b && (a = self.a).is_a?(Expression)
-          match = a.match(fact.a)
-          match.bindings if match.success
+          check_result(a.match(fact.a), bindings)
         elsif (a = self.a).is_a?(Expression) && (b = self.b).is_a?(Expression)
-          match_a = a.match(fact.a)
-          match_b = b.match(fact.b)
-          if match_a.success && match_b.success
-            if (bindings_a = match_a.bindings) && (bindings_b = match_b.bindings)
-              if (bindings_a.keys & bindings_b.keys).all? { |key| bindings_a[key] == bindings_b[key] }
-                bindings_a.merge(bindings_b)
-              end
-            else
-              match_a.bindings || match_b.bindings
-            end
+          [a.match(fact.a), b.match(fact.b)].reduce(bindings) do |bindings, result|
+            check_result(result, bindings) if bindings
           end
         end
       end
