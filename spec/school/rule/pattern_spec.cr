@@ -27,6 +27,21 @@ Spectator.describe School::NullaryPattern do
       expect(described_class.new(MockFact).match(fact, bindings)).to be_nil
     end
   end
+
+  # test the base class implementation of `match` here
+
+  describe "#match" do
+    let(output) { [] of String }
+
+    let(proc) { -> { output << "called" } }
+
+    let(bindings) { School::Bindings.new }
+
+    it "yields once for each match" do
+      facts = [MockProperty.new(123), MockFact.new, MockProperty.new(890)]
+      expect{described_class.new(MockFact).match(facts, bindings, &proc)}.to change{output.dup}.to(["called"])
+    end
+  end
 end
 
 Spectator.describe School::UnaryPattern do
@@ -209,6 +224,19 @@ Spectator.describe School::Pattern::Any do
       expect(described_class.new(School::UnaryPattern.new(MockProperty, 123)).match(fact, bindings)).to be_empty
     end
   end
+
+  describe "#match" do
+    let(output) { [] of String }
+
+    let(proc) { -> { output << "called" } }
+
+    let(bindings) { School::Bindings.new }
+
+    it "yields once if any match" do
+      facts = [MockProperty.new(123), MockFact.new, MockProperty.new(890)]
+      expect{described_class.new(School::UnaryPattern.new(MockProperty, 123)).match(facts, bindings, &proc)}.to change{output.dup}.to(["called"])
+    end
+  end
 end
 
 Spectator.describe School::Pattern::None do
@@ -237,6 +265,19 @@ Spectator.describe School::Pattern::None do
     it "returns the bindings if the fact matches the wrapped pattern" do
       fact = MockProperty.new(123)
       expect(described_class.new(School::UnaryPattern.new(MockProperty, 123)).match(fact, bindings)).to be_empty
+    end
+  end
+
+  describe "#match" do
+    let(output) { [] of String }
+
+    let(proc) { -> { output << "called" } }
+
+    let(bindings) { School::Bindings.new }
+
+    it "yields once if none match" do
+      facts = [MockProperty.new(123), MockFact.new, MockProperty.new(890)]
+      expect{described_class.new(School::UnaryPattern.new(MockProperty, 456)).match(facts, bindings, &proc)}.to change{output.dup}.to(["called"])
     end
   end
 end

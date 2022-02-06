@@ -67,20 +67,8 @@ module School
 
     private def each_match(conditions : Array(Pattern), bindings = Bindings.new, &block : Bindings ->)
       if (condition = conditions.first?)
-        if condition.is_a?(Pattern::Any)
-          if facts.any? { |fact| condition.match(fact, bindings) }
-            each_match(conditions[1..-1], bindings, &block)
-          end
-        elsif condition.is_a?(Pattern::None)
-          if facts.none? { |fact| condition.match(fact, bindings) }
-            each_match(conditions[1..-1], bindings, &block)
-          end
-        else
-          facts.each do |fact|
-            if (temporary = condition.match(fact, bindings))
-              each_match(conditions[1..-1], temporary, &block)
-            end
-          end
+        condition.match(facts, bindings) do |temporary|
+          each_match(conditions[1..-1], temporary, &block) if temporary
         end
       else
         block.call(bindings)

@@ -13,6 +13,18 @@ module School
     #
     abstract def match(fact : Fact, bindings : Bindings) : Bindings?
 
+    # Indicates whether or not any of the facts match the pattern.
+    #
+    # Yields once for each match.
+    #
+    def match(facts : Enumerable(Fact), bindings : Bindings, &block : Proc(Bindings, Nil)) : Nil
+      facts.each do |fact|
+        if (temporary = match(fact, bindings))
+          yield temporary
+        end
+      end
+    end
+
     # Checks the result for binding conflicts.
     #
     # Returns the merged bindings.
@@ -42,6 +54,13 @@ module School
       end
 
       # :inherit:
+      def match(facts : Enumerable(Fact), bindings : Bindings, &block : Proc(Bindings, Nil)) : Nil
+        if facts.any? { |fact| match(fact, bindings) }
+          yield bindings
+        end
+      end
+
+      # :inherit:
       def match(fact : Fact, bindings : Bindings) : Bindings?
         @pattern.match(fact, bindings)
       end
@@ -57,6 +76,13 @@ module School
       # :inherit:
       def vars : Enumerable(String)
         @pattern.vars
+      end
+
+      # :inherit:
+      def match(facts : Enumerable(Fact), bindings : Bindings, &block : Proc(Bindings, Nil)) : Nil
+        if facts.none? { |fact| match(fact, bindings) }
+          yield bindings
+        end
       end
 
       # :inherit:
