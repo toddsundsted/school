@@ -8,12 +8,6 @@ Spectator.describe School::NullaryPattern do
     end
   end
 
-  describe "#fact_class" do
-    it "returns the fact class" do
-      expect(described_class.new(MockFact).fact_class).to eq(MockFact)
-    end
-  end
-
   describe "#vars" do
     it "returns the vars" do
       expect(described_class.new(MockFact).vars).to be_empty
@@ -43,12 +37,6 @@ Spectator.describe School::UnaryPattern do
 
     it "accepts a var as the argument" do
       expect(described_class.new(MockProperty, School::Var.new("c"))).to be_a(School::Pattern)
-    end
-  end
-
-  describe "#fact_class" do
-    it "returns the fact class" do
-      expect(described_class.new(MockProperty, 123).fact_class).to eq(MockProperty)
     end
   end
 
@@ -107,12 +95,6 @@ Spectator.describe School::BinaryPattern do
 
     it "accepts a var as the second argument" do
       expect(described_class.new(MockRelationship, "abc", School::Var.new("n"))).to be_a(School::Pattern)
-    end
-  end
-
-  describe "#fact_class" do
-    it "returns the fact class" do
-      expect(described_class.new(MockRelationship, "abc", "xyz").fact_class).to eq(MockRelationship)
     end
   end
 

@@ -5,8 +5,6 @@ module School
   # A pattern.
   #
   abstract class Pattern
-    getter fact_class : Fact.class = Fact
-
     # Returns the variables in the pattern.
     #
     abstract def vars : Enumerable(String)
@@ -71,7 +69,7 @@ module School
   # A pattern that matches a fact.
   #
   class NullaryPattern(F) < Pattern
-    def initialize(@fact_class : F.class)
+    def initialize(fact_class : F.class)
       {% unless F < Fact && F.ancestors.all?(&.type_vars.empty?) %}
         {% raise "#{F} is not a nullary Fact" %}
       {% end %}
@@ -95,7 +93,7 @@ module School
   class UnaryPattern(F, C) < Pattern
     getter c
 
-    def initialize(@fact_class : F.class, @c : C)
+    def initialize(fact_class : F.class, @c : C)
       {% begin %}
         {% ancestor = F.ancestors.find { |a| !a.type_vars.empty? } %}
         {% if F < Fact && ancestor && (types = ancestor.type_vars).size == 1 %}
@@ -134,7 +132,7 @@ module School
   class BinaryPattern(F, A, B) < Pattern
     getter a, b
 
-    def initialize(@fact_class : F.class, @a : A, @b : B)
+    def initialize(fact_class : F.class, @a : A, @b : B)
       {% begin %}
         {% ancestor = F.ancestors.find { |a| !a.type_vars.empty? } %}
         {% if F < Fact && ancestor && (types = ancestor.type_vars).size == 2 %}
