@@ -74,6 +74,26 @@ Spectator.describe School::Rule::Builder do
     it "adds a binary condition to the rule" do
       expect(subject.condition("a", "b", MockRelationship).build.conditions.first).to be_a(School::BinaryPattern(MockRelationship, String, String))
     end
+
+    # given a block
+
+    it "adds a condition to the rule" do
+      expect{subject.condition {}}.to change{subject.build.conditions.size}
+    end
+
+    it "adds a proc pattern to the rule" do
+      expect(subject.condition {}.build.conditions.first).to be_a(School::ProcPattern)
+    end
+
+    # given a proc
+
+    it "adds a condition to the rule" do
+      expect{subject.condition(School::ProcPattern::ProcType.new {})}.to change{subject.build.conditions.size}
+    end
+
+    it "adds a proc pattern to the rule" do
+      expect(subject.condition(School::ProcPattern::ProcType.new {}).build.conditions.first).to be_a(School::ProcPattern)
+    end
   end
 
   describe "#any" do
@@ -173,7 +193,7 @@ Spectator.describe School::Rule::Builder do
       expect(subject.action { |r, b| }.build.actions.first).to be_a(School::Action)
     end
 
-    # given an action
+    # given a proc
 
     it "adds an action to the rule" do
       expect{subject.action(->(r : School::Rule, b : School::Bindings) {})}.to change{subject.build.actions.size}

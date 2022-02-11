@@ -43,6 +43,16 @@ module School
         self
       end
 
+      def condition(&block : ProcPattern::ProcType)
+        @conditions << ProcPattern.new(block)
+        self
+      end
+
+      def condition(block : ProcPattern::ProcType)
+        @conditions << ProcPattern.new(block)
+        self
+      end
+
       def any(f : Fact.class)
         @conditions << Pattern::Any.new(NullaryPattern.new(f))
         self

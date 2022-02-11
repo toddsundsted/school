@@ -281,3 +281,45 @@ Spectator.describe School::Pattern::None do
     end
   end
 end
+
+Spectator.describe School::ProcPattern do
+  describe ".new" do
+    it "instantiates a new pattern" do
+      proc = School::ProcPattern::ProcType.new {}
+      expect(described_class.new(proc)).to be_a(School::Pattern)
+    end
+  end
+
+  describe "#match" do
+    let(output) { [] of School::Bindings }
+
+    let(proc) { -> (bindings : School::Bindings) { output << bindings} }
+
+    let(bindings) { School::Bindings.new }
+
+    it "does not yield if condition returns nil" do
+      condition = School::ProcPattern::ProcType.new { nil }
+      expect{described_class.new(condition).match([] of School::Fact, bindings, &proc)}.not_to change{output.dup}
+    end
+
+    it "yields if the condition returns bindings" do
+      condition = School::ProcPattern::ProcType.new { School::Bindings{"foo" => "bar"} }
+      expect{described_class.new(condition).match([] of School::Fact, bindings, &proc)}.to change{output.dup}.to([School::Bindings{"foo" => "bar"}])
+    end
+
+    it "yields and merges bindings if the condition returns bindings" do
+      condition = School::ProcPattern::ProcType.new { School::Bindings{"foo" => "bar"} }
+      expect{described_class.new(condition).match([] of School::Fact, School::Bindings{"abc" => "xyz"}, &proc)}.to change{output.dup}.to([School::Bindings{"abc" => "xyz", "foo" => "bar"}])
+    end
+
+    it "yields and returns bindings if bindings match" do
+      condition = School::ProcPattern::ProcType.new { School::Bindings{"foo" => "bar"} }
+      expect{described_class.new(condition).match([] of School::Fact, School::Bindings{"foo" => "bar"}, &proc)}.to change{output.dup}.to([School::Bindings{"foo" => "bar"}])
+    end
+
+    it "does not yield if bindings conflict" do
+      condition = School::ProcPattern::ProcType.new { School::Bindings{"foo" => "bar"} }
+      expect{described_class.new(condition).match([] of School::Fact, School::Bindings{"foo" => "baz"}, &proc)}.not_to change{output.dup}
+    end
+  end
+end

@@ -203,4 +203,32 @@ module School
       end
     end
   end
+
+  # A pattern that wraps a proc.
+  #
+  class ProcPattern < Pattern
+    alias ProcType = Proc(Bindings, Bindings | Nil)
+
+    def initialize(@proc : ProcType)
+    end
+
+    # :inherit:
+    def vars : Enumerable(String)
+      [] of String
+    end
+
+    # :inherit:
+    def match(fact : Fact, bindings : Bindings) : Bindings?
+      # never matches a built in fact
+    end
+
+    # :inherit:
+    def match(facts : Enumerable(Fact), bindings : Bindings, &block : Proc(Bindings, Nil)) : Nil
+      if (temporary = @proc.call(bindings))
+        if temporary.none? { |k, v| bindings.has_key?(k) && bindings[k] != v }
+          yield bindings.merge(temporary)
+        end
+      end
+    end
+  end
 end
