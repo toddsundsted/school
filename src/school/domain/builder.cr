@@ -55,11 +55,9 @@ module School
 
       # Builds the domain.
       #
-      # Every invocation returns the same domain (it is built once and
-      # memoized).
-      #
       def build
-        @domain ||= Domain.new(@facts, @rules)
+        @facts.each { |fact| Fact.assert(fact) }
+        Domain.new(@rules)
       end
     end
   end

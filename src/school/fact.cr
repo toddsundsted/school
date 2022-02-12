@@ -7,6 +7,32 @@ module School
     end
 
     def_equals_and_hash _class
+
+    @@facts = Set(Fact).new
+
+    def self.clear!
+      @@facts.clear
+    end
+
+    # Returns the facts.
+    #
+    def self.facts
+      @@facts.dup
+    end
+
+    # Asserts a fact.
+    #
+    def self.assert(fact : Fact) : Fact
+      @@facts.add?(fact) || raise ArgumentError.new("already asserted")
+      fact
+    end
+
+    # Retracts a fact.
+    #
+    def self.retract(fact : Fact) : Fact
+      @@facts.delete(fact) || raise ArgumentError.new("already retracted")
+      fact
+    end
   end
 
   # A fact that asserts a property.

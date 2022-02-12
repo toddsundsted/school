@@ -3,6 +3,8 @@ require "../../../src/school/domain"
 require "../../../src/school/rule/builder"
 
 Spectator.describe School::Domain do
+  before_each { School::Fact.clear! }
+
   describe ".new" do
     it "instantiates a new domain" do
       expect(described_class.new).to be_a(School::Domain)
@@ -32,25 +34,23 @@ Spectator.describe School::Domain do
     context "if a fact is already asserted" do
       before_each { subject.assert(fact) }
 
-      it "does not add the fact to the domain" do
-        expect{subject.assert(fact)}.not_to change{subject.facts}
+      it "raises an error" do
+        expect{subject.assert(fact)}.to raise_error(ArgumentError)
       end
     end
   end
 
   describe "#retract" do
-    before_each { subject.assert(fact) }
-
-    it "removes a fact from the domain" do
-      expect{subject.retract(fact)}.to change{subject.facts}
-      expect(subject.facts).not_to have(fact)
+    it "raises an error" do
+      expect{subject.retract(fact)}.to raise_error(ArgumentError)
     end
 
-    context "if a fact is already retracted" do
-      before_each { subject.retract(fact) }
+    context "if a fact is already asserted" do
+      before_each { subject.assert(fact) }
 
-      it "raises an error" do
-        expect{subject.retract(fact)}.to raise_error(ArgumentError)
+      it "removes the fact from the domain" do
+        expect{subject.retract(fact)}.to change{subject.facts}
+        expect(subject.facts).not_to have(fact)
       end
     end
   end
