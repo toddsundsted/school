@@ -13,12 +13,12 @@ module School
     #
     abstract def match(fact : Fact, bindings : Bindings) : Bindings?
 
-    # Indicates whether or not any of the facts match the pattern.
+    # Indicates whether or not any facts match the pattern.
     #
     # Yields once for each match.
     #
-    def match(facts : Enumerable(Fact), bindings : Bindings, &block : Proc(Bindings, Nil)) : Nil
-      facts.each do |fact|
+    def match(bindings : Bindings, &block : Proc(Bindings, Nil)) : Nil
+      Fact.facts.each do |fact|
         if (temporary = match(fact, bindings))
           yield temporary
         end
@@ -54,8 +54,8 @@ module School
       end
 
       # :inherit:
-      def match(facts : Enumerable(Fact), bindings : Bindings, &block : Proc(Bindings, Nil)) : Nil
-        if facts.any? { |fact| match(fact, bindings) }
+      def match(bindings : Bindings, &block : Proc(Bindings, Nil)) : Nil
+        if Fact.facts.any? { |fact| match(fact, bindings) }
           yield bindings
         end
       end
@@ -79,8 +79,8 @@ module School
       end
 
       # :inherit:
-      def match(facts : Enumerable(Fact), bindings : Bindings, &block : Proc(Bindings, Nil)) : Nil
-        if facts.none? { |fact| match(fact, bindings) }
+      def match(bindings : Bindings, &block : Proc(Bindings, Nil)) : Nil
+        if Fact.facts.none? { |fact| match(fact, bindings) }
           yield bindings
         end
       end
@@ -223,7 +223,7 @@ module School
     end
 
     # :inherit:
-    def match(facts : Enumerable(Fact), bindings : Bindings, &block : Proc(Bindings, Nil)) : Nil
+    def match(bindings : Bindings, &block : Proc(Bindings, Nil)) : Nil
       if (temporary = @proc.call(bindings))
         if temporary.none? { |k, v| bindings.has_key?(k) && bindings[k] != v }
           yield bindings.merge(temporary)

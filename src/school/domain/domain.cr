@@ -65,7 +65,7 @@ module School
 
     private def each_match(conditions : Array(Pattern), bindings = Bindings.new, &block : Bindings ->)
       if (condition = conditions.first?)
-        condition.match(facts, bindings) do |temporary|
+        condition.match(bindings) do |temporary|
           each_match(conditions[1..-1], temporary, &block) if temporary
         end
       else
