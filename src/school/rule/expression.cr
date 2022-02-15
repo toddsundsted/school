@@ -17,6 +17,20 @@ module School
     abstract def match(value : DomainTypes) : Result
   end
 
+  # A literal.
+  #
+  class Lit < Expression
+    getter target
+
+    def initialize(@target : DomainTypes)
+    end
+
+    # :inherit:
+    def match(value : DomainTypes) : Result
+      Result.new(value == @target)
+    end
+  end
+
   # A variable.
   #
   class Var < Expression
@@ -55,10 +69,10 @@ module School
   # A "within" expression.
   #
   class Within < Expression
-    @targets : Array(DomainTypes | Var)
+    @targets : Array(DomainTypes | Lit | Var)
 
-    def initialize(*targets : DomainTypes | Var)
-      @targets = Array(DomainTypes | Var){*targets}
+    def initialize(*targets : DomainTypes | Lit | Var)
+      @targets = Array(DomainTypes | Lit | Var){*targets}
     end
 
     # :inherit:
@@ -68,7 +82,7 @@ module School
           case target
           in DomainTypes
             break Result.new(true) if value == target
-          in Var
+          in Expression
             break target.match(value)
           end
         end

@@ -1,6 +1,36 @@
 require "../../spec_helper"
 require "../../../src/school/rule/expression"
 
+Spectator.describe School::Lit do
+  describe "#match" do
+    subject { described_class.new("lit") }
+
+    it "returns true if the value matches" do
+      expect(subject.match("lit").success).to be_true
+    end
+
+    it "returns false if the value does not match" do
+      expect(subject.match("mus").success).to be_false
+    end
+
+    context "nested in a not" do
+      subject { School::Not.new(described_class.new("lit")) }
+
+      it "returns false if the value matches" do
+        expect(subject.match("lit").success).to be_false
+      end
+    end
+
+    context "nested in a within" do
+      subject { School::Within.new(described_class.new("lit")) }
+
+      it "returns true if the value matches" do
+        expect(subject.match("lit").success).to be_true
+      end
+    end
+  end
+end
+
 Spectator.describe School::Var do
   describe ".new" do
     it "raises an error if the name is not valid" do
@@ -57,6 +87,14 @@ Spectator.describe School::Not do
       end
     end
 
+    context "given a nested lit" do
+      subject { described_class.new(School::Lit.new("lit")) }
+
+      it "returns false" do
+        expect(subject.match("value").success).to be_true
+      end
+    end
+
     context "given a nested var" do
       subject { described_class.new(School::Var.new("var")) }
 
@@ -77,6 +115,14 @@ Spectator.describe School::Within do
 
     it "returns false if the value is not within the set" do
       expect(subject.match("baz").success).to be_false
+    end
+
+    context "given a nested lit" do
+      subject { described_class.new(School::Lit.new("lit")) }
+
+      it "returns true" do
+        expect(subject.match("lit").success).to be_true
+      end
     end
 
     context "given a nested var" do
