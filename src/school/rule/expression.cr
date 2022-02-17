@@ -72,7 +72,8 @@ module School
     @targets : Array(DomainTypes | Lit | Var)
 
     def initialize(*targets : DomainTypes | Lit | Var)
-      @targets = Array(DomainTypes | Lit | Var){*targets}
+      @targets = typeof(@targets).new
+      targets.each { |target| @targets << target }
     end
 
     # :inherit:
