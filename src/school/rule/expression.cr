@@ -5,7 +5,7 @@ module School
 
   # Result.
   #
-  # Holds the result of a match as well as any passed bindings.
+  # Holds the result of a match as well as any resulting bindings.
   #
   private record Result, success : Bool, bindings : Bindings? = nil
 
@@ -51,43 +51,40 @@ module School
   # A "not" expression.
   #
   class Not < Expression
-    def initialize(@target : DomainTypes | Expression)
+    def initialize(@target : Expression)
+    end
+
+    def initialize(target : DomainTypes)
+      initialize(Lit.new(target))
     end
 
     # :inherit:
     def match(value : DomainTypes) : Result
-      case (target = @target)
-      in DomainTypes
-        Result.new(value != target)
-      in Expression
-        match = target.match(value)
-        Result.new(!match.success, match.bindings)
-      end
+      match = @target.match(value)
+      Result.new(!match.success, match.bindings)
     end
   end
 
   # A "within" expression.
   #
   class Within < Expression
-    @targets : Array(DomainTypes | Lit | Var)
-
-    def initialize(*targets : DomainTypes | Lit | Var)
-      @targets = typeof(@targets).new
+    def initialize(*targets : Lit | Var)
+      @targets = Array(Lit | Var).new
       targets.each { |target| @targets << target }
+    end
+
+    def initialize(*targets : DomainTypes)
+      @targets = Array(Lit | Var).new
+      targets.each { |target| @targets << Lit.new(target) }
     end
 
     # :inherit:
     def match(value : DomainTypes) : Result
-      result =
-        @targets.each do |target|
-          case target
-          in DomainTypes
-            break Result.new(true) if value == target
-          in Expression
-            break target.match(value)
-          end
-        end
-      result || Result.new(false)
+      @targets.each do |target|
+        match = target.match(value)
+        return match if match.success
+      end
+      Result.new(false)
     end
   end
 end
