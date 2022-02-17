@@ -17,7 +17,7 @@ module School
     #
     # Yields once for each match.
     #
-    def match(bindings : Bindings, &block : Proc(Bindings, Nil)) : Nil
+    def match(bindings : Bindings, &block : Bindings -> Nil) : Nil
       Fact.facts.each do |fact|
         if (temporary = match(fact, bindings))
           yield temporary
@@ -54,7 +54,7 @@ module School
       end
 
       # :inherit:
-      def match(bindings : Bindings, &block : Proc(Bindings, Nil)) : Nil
+      def match(bindings : Bindings, &block : Bindings -> Nil) : Nil
         if Fact.facts.any? { |fact| match(fact, bindings) }
           yield bindings
         end
@@ -79,7 +79,7 @@ module School
       end
 
       # :inherit:
-      def match(bindings : Bindings, &block : Proc(Bindings, Nil)) : Nil
+      def match(bindings : Bindings, &block : Bindings -> Nil) : Nil
         if Fact.facts.none? { |fact| match(fact, bindings) }
           yield bindings
         end
@@ -223,7 +223,7 @@ module School
     end
 
     # :inherit:
-    def match(bindings : Bindings, &block : Proc(Bindings, Nil)) : Nil
+    def match(bindings : Bindings, &block : Bindings -> Nil) : Nil
       if (temporary = @proc.call(bindings))
         if temporary.none? { |k, v| bindings.has_key?(k) && bindings[k] != v }
           yield bindings.merge(temporary)
