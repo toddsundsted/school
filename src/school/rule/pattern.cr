@@ -9,14 +9,65 @@ module School
     #
     abstract def vars : Enumerable(String)
 
-    # Indicates whether or not the fact matches the pattern.
-    #
-    abstract def match(fact : Fact, bindings : Bindings) : Bindings?
-
     # Indicates whether or not any facts match the pattern.
     #
     # Yields once for each match.
     #
+    abstract def match(bindings : Bindings, &block : Bindings -> Nil) : Nil
+
+    # A special pattern that indicates a condition that is satisfied
+    # if and only if at least one fact matches the wrapped pattern.
+    #
+    class Any < Pattern
+      def initialize(@pattern : BasePattern)
+      end
+
+      # :inherit:
+      def vars : Enumerable(String)
+        @pattern.vars
+      end
+
+      # :inherit:
+      def match(bindings : Bindings, &block : Bindings -> Nil) : Nil
+        yield bindings if @pattern.match(bindings) { break true }
+      end
+    end
+
+    # A special pattern that indicates a condition that is satisfied
+    # if and only if no facts match the wrapped pattern.
+    #
+    class None < Pattern
+      def initialize(@pattern : BasePattern)
+      end
+
+      # :inherit:
+      def vars : Enumerable(String)
+        @pattern.vars
+      end
+
+      # :inherit:
+      def match(bindings : Bindings, &block : Bindings -> Nil) : Nil
+        yield bindings unless @pattern.match(bindings) { break true }
+      end
+    end
+  end
+
+  # Base class for patterns.
+  #
+  # Prefer this class over `Pattern` since classes derived from this
+  # class can be used with the special patterns `Any` and `None`.
+  #
+  abstract class BasePattern < Pattern
+  end
+
+  # Base class for patterns that match against the `Fact` database.
+  #
+  abstract class BaseFactPattern < BasePattern
+    # Indicates whether or not the fact matches the pattern.
+    #
+    abstract def match(fact : Fact, bindings : Bindings) : Bindings?
+
+    # :inherit:
     def match(bindings : Bindings, &block : Bindings -> Nil) : Nil
       Fact.facts.each do |fact|
         if (temporary = match(fact, bindings))
@@ -40,61 +91,11 @@ module School
         end
       end
     end
-
-    # A special pattern that indicates a condition that is satisfied
-    # if and only if at least one fact matches the wrapped pattern.
-    #
-    class Any < Pattern
-      def initialize(@pattern : Pattern)
-      end
-
-      # :inherit:
-      def vars : Enumerable(String)
-        @pattern.vars
-      end
-
-      # :inherit:
-      def match(bindings : Bindings, &block : Bindings -> Nil) : Nil
-        if Fact.facts.any? { |fact| match(fact, bindings) }
-          yield bindings
-        end
-      end
-
-      # :inherit:
-      def match(fact : Fact, bindings : Bindings) : Bindings?
-        @pattern.match(fact, bindings)
-      end
-    end
-
-    # A special pattern that indicates a condition that is satisfied
-    # if and only if no facts match the wrapped pattern.
-    #
-    class None < Pattern
-      def initialize(@pattern : Pattern)
-      end
-
-      # :inherit:
-      def vars : Enumerable(String)
-        @pattern.vars
-      end
-
-      # :inherit:
-      def match(bindings : Bindings, &block : Bindings -> Nil) : Nil
-        if Fact.facts.none? { |fact| match(fact, bindings) }
-          yield bindings
-        end
-      end
-
-      # :inherit:
-      def match(fact : Fact, bindings : Bindings) : Bindings?
-        @pattern.match(fact, bindings)
-      end
-    end
   end
 
   # A pattern that matches a fact.
   #
-  class NullaryPattern(F) < Pattern
+  class NullaryPattern(F) < BaseFactPattern
     def initialize(fact_class : F.class)
       {% unless F < Fact && F.ancestors.all?(&.type_vars.empty?) %}
         {% raise "#{F} is not a nullary Fact" %}
@@ -116,7 +117,7 @@ module School
 
   # A pattern that matches a fact with one argument.
   #
-  class UnaryPattern(F, C) < Pattern
+  class UnaryPattern(F, C) < BaseFactPattern
     getter c
 
     def initialize(fact_class : F.class, @c : C)
@@ -155,7 +156,7 @@ module School
 
   # A pattern that matches a fact with two arguments.
   #
-  class BinaryPattern(F, A, B) < Pattern
+  class BinaryPattern(F, A, B) < BaseFactPattern
     getter a, b
 
     def initialize(fact_class : F.class, @a : A, @b : B)
@@ -206,7 +207,7 @@ module School
 
   # A pattern that wraps a proc.
   #
-  class ProcPattern < Pattern
+  class ProcPattern < BasePattern
     alias ProcType = Proc(Bindings, Bindings | Nil)
 
     def initialize(@proc : ProcType)
@@ -215,11 +216,6 @@ module School
     # :inherit:
     def vars : Enumerable(String)
       [] of String
-    end
-
-    # :inherit:
-    def match(fact : Fact, bindings : Bindings) : Bindings?
-      # never matches a built in fact
     end
 
     # :inherit:

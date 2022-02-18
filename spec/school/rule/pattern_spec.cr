@@ -216,20 +216,6 @@ Spectator.describe School::Pattern::Any do
   end
 
   describe "#match" do
-    let(bindings) { School::Bindings.new }
-
-    it "returns nil if the fact does not match the wrapped pattern" do
-      fact = MockFact.new
-      expect(described_class.new(School::UnaryPattern.new(MockProperty, 123)).match(fact, bindings)).to be_nil
-    end
-
-    it "returns the bindings if the fact matches the wrapped pattern" do
-      fact = MockProperty.new(123)
-      expect(described_class.new(School::UnaryPattern.new(MockProperty, 123)).match(fact, bindings)).to be_empty
-    end
-  end
-
-  describe "#match" do
     let(output) { [] of String }
 
     let(proc) { -> { output << "called" } }
@@ -257,20 +243,6 @@ Spectator.describe School::Pattern::None do
 
     it "returns the vars in the wrapped pattern" do
       expect(subject.vars).to contain_exactly("m", "n")
-    end
-  end
-
-  describe "#match" do
-    let(bindings) { School::Bindings.new }
-
-    it "returns nil if the fact does not match the wrapped pattern" do
-      fact = MockFact.new
-      expect(described_class.new(School::UnaryPattern.new(MockProperty, 123)).match(fact, bindings)).to be_nil
-    end
-
-    it "returns the bindings if the fact matches the wrapped pattern" do
-      fact = MockProperty.new(123)
-      expect(described_class.new(School::UnaryPattern.new(MockProperty, 123)).match(fact, bindings)).to be_empty
     end
   end
 
