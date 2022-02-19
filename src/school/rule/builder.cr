@@ -13,6 +13,10 @@ module School
       def initialize(@name : String)
       end
 
+      private def l(m)
+        m.is_a?(Expression) ? m : Lit.new(m)
+      end
+
       def condition(f : Fact.class)
         @conditions << NullaryPattern.new(f)
         self
@@ -53,6 +57,36 @@ module School
         self
       end
 
+      def condition(p : Pattern.class)
+        @conditions << p.new
+        self
+      end
+
+      def condition(p : Pattern.class, m)
+        @conditions << p.new(l(m))
+        self
+      end
+
+      def condition(m, p : Pattern.class)
+        @conditions << p.new(l(m))
+        self
+      end
+
+      def condition(p : Pattern.class, m1, m2)
+        @conditions << p.new(l(m1), l(m2))
+        self
+      end
+
+      def condition(m1, p : Pattern.class, m2)
+        @conditions << p.new(l(m1), l(m2))
+        self
+      end
+
+      def condition(m1, m2, p : Pattern.class)
+        @conditions << p.new(l(m1), l(m2))
+        self
+      end
+
       def any(f : Fact.class)
         @conditions << Pattern::Any.new(NullaryPattern.new(f))
         self
@@ -83,6 +117,36 @@ module School
         self
       end
 
+      def any(p : Pattern.class)
+        @conditions << Pattern::Any.new(p.new)
+        self
+      end
+
+      def any(p : Pattern.class, m)
+        @conditions << Pattern::Any.new(p.new(l(m)))
+        self
+      end
+
+      def any(m, p : Pattern.class)
+        @conditions << Pattern::Any.new(p.new(l(m)))
+        self
+      end
+
+      def any(p : Pattern.class, m1, m2)
+        @conditions << Pattern::Any.new(p.new(l(m1), l(m2)))
+        self
+      end
+
+      def any(m1, p : Pattern.class, m2)
+        @conditions << Pattern::Any.new(p.new(l(m1), l(m2)))
+        self
+      end
+
+      def any(m1, m2, p : Pattern.class)
+        @conditions << Pattern::Any.new(p.new(l(m1), l(m2)))
+        self
+      end
+
       def none(f : Fact.class)
         @conditions << Pattern::None.new(NullaryPattern.new(f))
         self
@@ -110,6 +174,36 @@ module School
 
       def none(m1, m2, f : Fact.class)
         @conditions << Pattern::None.new(BinaryPattern.new(f, m1, m2))
+        self
+      end
+
+      def none(p : Pattern.class)
+        @conditions << Pattern::None.new(p.new)
+        self
+      end
+
+      def none(p : Pattern.class, m)
+        @conditions << Pattern::None.new(p.new(l(m)))
+        self
+      end
+
+      def none(m, p : Pattern.class)
+        @conditions << Pattern::None.new(p.new(l(m)))
+        self
+      end
+
+      def none(p : Pattern.class, m1, m2)
+        @conditions << Pattern::None.new(p.new(l(m1), l(m2)))
+        self
+      end
+
+      def none(m1, p : Pattern.class, m2)
+        @conditions << Pattern::None.new(p.new(l(m1), l(m2)))
+        self
+      end
+
+      def none(m1, m2, p : Pattern.class)
+        @conditions << Pattern::None.new(p.new(l(m1), l(m2)))
         self
       end
 

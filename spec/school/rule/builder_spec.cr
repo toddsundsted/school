@@ -25,6 +25,14 @@ Spectator.describe School::Rule::Builder do
       expect(subject.condition(MockFact).build.conditions.first).to be_a(School::NullaryPattern(MockFact))
     end
 
+    it "adds a condition to the rule" do
+      expect{subject.condition(School::NullaryPattern(MockFact))}.to change{subject.build.conditions.size}
+    end
+
+    it "adds a nullary condition to the rule" do
+      expect(subject.condition(School::NullaryPattern(MockFact)).build.conditions.first).to be_a(School::NullaryPattern(MockFact))
+    end
+
     # unary condition, first argument
 
     it "adds a condition to the rule" do
@@ -33,6 +41,14 @@ Spectator.describe School::Rule::Builder do
 
     it "adds a unary condition to the rule" do
       expect(subject.condition(MockProperty, 0).build.conditions.first).to be_a(School::UnaryPattern(MockProperty, Int32))
+    end
+
+    it "adds a condition to the rule" do
+      expect{subject.condition(School::UnaryPattern(MockProperty, School::Lit), 0)}.to change{subject.build.conditions.size}
+    end
+
+    it "adds a unary condition to the rule" do
+      expect(subject.condition(School::UnaryPattern(MockProperty, School::Lit), 0).build.conditions.first).to be_a(School::UnaryPattern(MockProperty, School::Lit))
     end
 
     # unary condition, second argument
@@ -45,6 +61,14 @@ Spectator.describe School::Rule::Builder do
       expect(subject.condition(0, MockProperty).build.conditions.first).to be_a(School::UnaryPattern(MockProperty, Int32))
     end
 
+    it "adds a condition to the rule" do
+      expect{subject.condition(0, School::UnaryPattern(MockProperty, School::Lit))}.to change{subject.build.conditions.size}
+    end
+
+    it "adds a unary condition to the rule" do
+      expect(subject.condition(0, School::UnaryPattern(MockProperty, School::Lit)).build.conditions.first).to be_a(School::UnaryPattern(MockProperty, School::Lit))
+    end
+
     # binary condition, first argument
 
     it "adds a condition to the rule" do
@@ -53,6 +77,14 @@ Spectator.describe School::Rule::Builder do
 
     it "adds a binary condition to the rule" do
       expect(subject.condition(MockRelationship, "a", "b").build.conditions.first).to be_a(School::BinaryPattern(MockRelationship, String, String))
+    end
+
+    it "adds a condition to the rule" do
+      expect{subject.condition(School::BinaryPattern(MockRelationship, School::Lit, School::Lit), "a", "b")}.to change{subject.build.conditions.size}
+    end
+
+    it "adds a binary condition to the rule" do
+      expect(subject.condition(School::BinaryPattern(MockRelationship, School::Lit, School::Lit), "a", "b").build.conditions.first).to be_a(School::BinaryPattern(MockRelationship, School::Lit, School::Lit))
     end
 
     # binary condition, second argument
@@ -65,6 +97,14 @@ Spectator.describe School::Rule::Builder do
       expect(subject.condition("a", MockRelationship, "b").build.conditions.first).to be_a(School::BinaryPattern(MockRelationship, String, String))
     end
 
+    it "adds a condition to the rule" do
+      expect{subject.condition("a", School::BinaryPattern(MockRelationship, School::Lit, School::Lit), "b")}.to change{subject.build.conditions.size}
+    end
+
+    it "adds a binary condition to the rule" do
+      expect(subject.condition("a", School::BinaryPattern(MockRelationship, School::Lit, School::Lit), "b").build.conditions.first).to be_a(School::BinaryPattern(MockRelationship, School::Lit, School::Lit))
+    end
+
     # binary condition, third argument
 
     it "adds a condition to the rule" do
@@ -73,6 +113,14 @@ Spectator.describe School::Rule::Builder do
 
     it "adds a binary condition to the rule" do
       expect(subject.condition("a", "b", MockRelationship).build.conditions.first).to be_a(School::BinaryPattern(MockRelationship, String, String))
+    end
+
+    it "adds a condition to the rule" do
+      expect{subject.condition("a", "b", School::BinaryPattern(MockRelationship, School::Lit, School::Lit))}.to change{subject.build.conditions.size}
+    end
+
+    it "adds a binary condition to the rule" do
+      expect(subject.condition("a", "b", School::BinaryPattern(MockRelationship, School::Lit, School::Lit)).build.conditions.first).to be_a(School::BinaryPattern(MockRelationship, School::Lit, School::Lit))
     end
 
     # given a block
@@ -103,10 +151,18 @@ Spectator.describe School::Rule::Builder do
       expect{subject.any(MockFact)}.to change{subject.build.conditions.size}
     end
 
+    it "adds a condition to the rule" do
+      expect{subject.any(School::NullaryPattern(MockFact))}.to change{subject.build.conditions.size}
+    end
+
     # unary condition, first argument
 
     it "adds a condition to the rule" do
       expect{subject.any(MockProperty, 0)}.to change{subject.build.conditions.size}
+    end
+
+    it "adds a condition to the rule" do
+      expect{subject.any(School::UnaryPattern(MockProperty, School::Lit), 0)}.to change{subject.build.conditions.size}
     end
 
     # unary condition, second argument
@@ -115,10 +171,18 @@ Spectator.describe School::Rule::Builder do
       expect{subject.any(0, MockProperty)}.to change{subject.build.conditions.size}
     end
 
+    it "adds a condition to the rule" do
+      expect{subject.any(0, School::UnaryPattern(MockProperty, School::Lit))}.to change{subject.build.conditions.size}
+    end
+
     # binary condition, first argument
 
     it "adds a condition to the rule" do
       expect{subject.any(MockRelationship, "a", "b")}.to change{subject.build.conditions.size}
+    end
+
+    it "adds a condition to the rule" do
+      expect{subject.any(School::BinaryPattern(MockRelationship, School::Lit, School::Lit), "a", "b")}.to change{subject.build.conditions.size}
     end
 
     # binary condition, second argument
@@ -127,10 +191,18 @@ Spectator.describe School::Rule::Builder do
       expect{subject.any("a", MockRelationship, "b")}.to change{subject.build.conditions.size}
     end
 
+    it "adds a condition to the rule" do
+      expect{subject.any("a", School::BinaryPattern(MockRelationship, School::Lit, School::Lit), "b")}.to change{subject.build.conditions.size}
+    end
+
     # binary condition, third argument
 
     it "adds a condition to the rule" do
       expect{subject.any("a", "b", MockRelationship)}.to change{subject.build.conditions.size}
+    end
+
+    it "adds a condition to the rule" do
+      expect{subject.any("a", "b", School::BinaryPattern(MockRelationship, School::Lit, School::Lit))}.to change{subject.build.conditions.size}
     end
   end
 
@@ -141,10 +213,18 @@ Spectator.describe School::Rule::Builder do
       expect{subject.none(MockFact)}.to change{subject.build.conditions.size}
     end
 
+    it "adds a condition to the rule" do
+      expect{subject.none(School::NullaryPattern(MockFact))}.to change{subject.build.conditions.size}
+    end
+
     # unary condition, first argument
 
     it "adds a condition to the rule" do
       expect{subject.none(MockProperty, 0)}.to change{subject.build.conditions.size}
+    end
+
+    it "adds a condition to the rule" do
+      expect{subject.none(School::UnaryPattern(MockProperty, School::Lit), 0)}.to change{subject.build.conditions.size}
     end
 
     # unary condition, second argument
@@ -153,10 +233,18 @@ Spectator.describe School::Rule::Builder do
       expect{subject.none(0, MockProperty)}.to change{subject.build.conditions.size}
     end
 
+    it "adds a condition to the rule" do
+      expect{subject.none(0, School::UnaryPattern(MockProperty, School::Lit))}.to change{subject.build.conditions.size}
+    end
+
     # binary condition, first argument
 
     it "adds a condition to the rule" do
       expect{subject.none(MockRelationship, "a", "b")}.to change{subject.build.conditions.size}
+    end
+
+    it "adds a condition to the rule" do
+      expect{subject.none(School::BinaryPattern(MockRelationship, School::Lit, School::Lit), "a", "b")}.to change{subject.build.conditions.size}
     end
 
     # binary condition, second argument
@@ -165,10 +253,18 @@ Spectator.describe School::Rule::Builder do
       expect{subject.none("a", MockRelationship, "b")}.to change{subject.build.conditions.size}
     end
 
+    it "adds a condition to the rule" do
+      expect{subject.none("a", School::BinaryPattern(MockRelationship, School::Lit, School::Lit), "b")}.to change{subject.build.conditions.size}
+    end
+
     # binary condition, third argument
 
     it "adds a condition to the rule" do
       expect{subject.none("a", "b", MockRelationship)}.to change{subject.build.conditions.size}
+    end
+
+    it "adds a condition to the rule" do
+      expect{subject.none("a", "b", School::BinaryPattern(MockRelationship, School::Lit, School::Lit))}.to change{subject.build.conditions.size}
     end
   end
 
