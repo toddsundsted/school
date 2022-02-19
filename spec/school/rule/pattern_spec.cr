@@ -6,6 +6,10 @@ Spectator.describe School::NullaryPattern do
 
   describe ".new" do
     it "instantiates a new pattern" do
+      expect(School::NullaryPattern(MockFact).new).to be_a(School::Pattern)
+    end
+
+    it "instantiates a new pattern" do
       expect(described_class.new(MockFact)).to be_a(School::Pattern)
     end
   end
@@ -48,6 +52,10 @@ end
 
 Spectator.describe School::UnaryPattern do
   describe ".new" do
+    it "instantiates a new pattern" do
+      expect(School::UnaryPattern(MockProperty, Int32).new(123)).to be_a(School::Pattern)
+    end
+
     it "instantiates a new pattern" do
       expect(described_class.new(MockProperty, 123)).to be_a(School::Pattern)
     end
@@ -102,6 +110,10 @@ end
 
 Spectator.describe School::BinaryPattern do
   describe ".new" do
+    it "instantiates a new pattern" do
+      expect(School::BinaryPattern(MockRelationship, String, String).new("abc", "xyz")).to be_a(School::Pattern)
+    end
+
     it "instantiates a new pattern" do
       expect(described_class.new(MockRelationship, "abc", "xyz")).to be_a(School::Pattern)
     end

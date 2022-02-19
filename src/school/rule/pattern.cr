@@ -96,6 +96,10 @@ module School
   # A pattern that matches a fact.
   #
   class NullaryPattern(F) < BaseFactPattern
+    def initialize
+      initialize(F)
+    end
+
     def initialize(fact_class : F.class)
       {% unless F < Fact && F.ancestors.all?(&.type_vars.empty?) %}
         {% raise "#{F} is not a nullary Fact" %}
@@ -119,6 +123,10 @@ module School
   #
   class UnaryPattern(F, C) < BaseFactPattern
     getter c
+
+    def initialize(c : C)
+      initialize(F, c)
+    end
 
     def initialize(fact_class : F.class, @c : C)
       {% begin %}
@@ -158,6 +166,10 @@ module School
   #
   class BinaryPattern(F, A, B) < BaseFactPattern
     getter a, b
+
+    def initialize(a : A, b : B)
+      initialize(F, a, b)
+    end
 
     def initialize(fact_class : F.class, @a : A, @b : B)
       {% begin %}
