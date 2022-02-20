@@ -204,6 +204,18 @@ Spectator.describe School::Rule::Builder do
     it "adds a condition to the rule" do
       expect{subject.any("a", "b", School::BinaryPattern(MockRelationship, School::Lit, School::Lit))}.to change{subject.build.conditions.size}
     end
+
+    # given a block
+
+    it "adds a condition to the rule" do
+      expect{subject.any {}}.to change{subject.build.conditions.size}
+    end
+
+    # given a proc
+
+    it "adds a condition to the rule" do
+      expect{subject.any(School::ProcPattern::ProcType.new {})}.to change{subject.build.conditions.size}
+    end
   end
 
   describe "#none" do
@@ -265,6 +277,18 @@ Spectator.describe School::Rule::Builder do
 
     it "adds a condition to the rule" do
       expect{subject.none("a", "b", School::BinaryPattern(MockRelationship, School::Lit, School::Lit))}.to change{subject.build.conditions.size}
+    end
+
+    # given a block
+
+    it "adds a condition to the rule" do
+      expect{subject.none {}}.to change{subject.build.conditions.size}
+    end
+
+    # given a proc
+
+    it "adds a condition to the rule" do
+      expect{subject.none(School::ProcPattern::ProcType.new {})}.to change{subject.build.conditions.size}
     end
   end
 

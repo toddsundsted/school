@@ -47,16 +47,6 @@ module School
         self
       end
 
-      def condition(&block : ProcPattern::ProcType)
-        @conditions << ProcPattern.new(block)
-        self
-      end
-
-      def condition(block : ProcPattern::ProcType)
-        @conditions << ProcPattern.new(block)
-        self
-      end
-
       def condition(p : Pattern.class)
         @conditions << p.new
         self
@@ -84,6 +74,16 @@ module School
 
       def condition(m1, m2, p : Pattern.class)
         @conditions << p.new(l(m1), l(m2))
+        self
+      end
+
+      def condition(&block : ProcPattern::ProcType)
+        @conditions << ProcPattern.new(block)
+        self
+      end
+
+      def condition(block : ProcPattern::ProcType)
+        @conditions << ProcPattern.new(block)
         self
       end
 
@@ -147,6 +147,16 @@ module School
         self
       end
 
+      def any(&block : ProcPattern::ProcType)
+        @conditions << Pattern::Any.new(ProcPattern.new(block))
+        self
+      end
+
+      def any(block : ProcPattern::ProcType)
+        @conditions << Pattern::Any.new(ProcPattern.new(block))
+        self
+      end
+
       def none(f : Fact.class)
         @conditions << Pattern::None.new(NullaryPattern.new(f))
         self
@@ -204,6 +214,16 @@ module School
 
       def none(m1, m2, p : Pattern.class)
         @conditions << Pattern::None.new(p.new(l(m1), l(m2)))
+        self
+      end
+
+      def none(&block : ProcPattern::ProcType)
+        @conditions << Pattern::None.new(ProcPattern.new(block))
+        self
+      end
+
+      def none(block : ProcPattern::ProcType)
+        @conditions << Pattern::None.new(ProcPattern.new(block))
         self
       end
 
