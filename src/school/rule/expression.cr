@@ -12,6 +12,20 @@ module School
   # An expression.
   #
   abstract class Expression
+    @name : String?
+
+    private NAME = /[a-z][a-zA-Z0-9_-]*/
+
+    # Sets the name of the expression.
+    #
+    protected def name=(@name)
+      raise ArgumentError.new("#{@name.inspect} is not a valid name") unless @name =~ NAME
+    end
+
+    # Returns the name of the expression.
+    #
+    getter! name
+
     # Matches the expression to a value.
     #
     abstract def match(value : DomainTypes) : Result
@@ -34,17 +48,13 @@ module School
   # A variable.
   #
   class Var < Expression
-    NAME = /[a-z][a-z0-9_-]*/i
-
-    getter name
-
-    def initialize(@name : String)
-      raise ArgumentError.new("#{@name.inspect} is not a valid name") unless @name =~ NAME
+    def initialize(name : String)
+      self.name = name
     end
 
     # :inherit:
     def match(value : DomainTypes) : Result
-      Result.new(true, Bindings{@name => value})
+      Result.new(true, Bindings{name => value})
     end
   end
 
