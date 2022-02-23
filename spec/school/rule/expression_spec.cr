@@ -28,6 +28,14 @@ Spectator.describe School::Lit do
         expect(subject.match("lit").success).to be_true
       end
     end
+
+    context "given a name" do
+      subject { described_class.new("lit", name: "val") }
+
+      it "returns the bindings" do
+        expect(subject.match("lit").bindings).to eq(School::Bindings{"val" => "lit"})
+      end
+    end
   end
 end
 
@@ -48,8 +56,8 @@ Spectator.describe School::Var do
     context "nested in a not" do
       subject { School::Not.new(described_class.new("var")) }
 
-      it "returns the bindings" do
-        expect(subject.match("value").bindings).to eq(School::Bindings{"var" => "value"})
+      it "does not return the bindings" do
+        expect(subject.match("value").bindings).to be_nil
       end
     end
 
@@ -102,6 +110,14 @@ Spectator.describe School::Not do
         expect(subject.match("value").success).to be_false
       end
     end
+
+    context "given a name" do
+      subject { described_class.new("target", name: "val") }
+
+      it "returns the bindings" do
+        expect(subject.match("value").bindings).to eq(School::Bindings{"val" => "value"})
+      end
+    end
   end
 end
 
@@ -130,6 +146,14 @@ Spectator.describe School::Within do
 
       it "returns true" do
         expect(subject.match("baz").success).to be_true
+      end
+    end
+
+    context "given a name" do
+      subject { described_class.new("foo", "bar", name: "val") }
+
+      it "returns the bindings" do
+        expect(subject.match("foo").bindings).to eq(School::Bindings{"val" => "foo"})
       end
     end
   end

@@ -29,6 +29,24 @@ module School
     # Matches the expression to a value.
     #
     abstract def match(value : DomainTypes) : Result
+
+    # Binds the value into a result.
+    #
+    protected def bind(value : DomainTypes, result : Result? = nil) : Result
+      if result && (temporary = result.bindings)
+        name? ?
+          Result.new(true, temporary.merge(Bindings{name => value})) :
+          Result.new(true, temporary)
+      else
+        name? ?
+          Result.new(true, Bindings{name => value}) :
+          Result.new(true)
+      end
+    end
+
+    protected def no_match
+      Result.new(false)
+    end
   end
 
   # A literal.
@@ -36,12 +54,13 @@ module School
   class Lit < Expression
     getter target
 
-    def initialize(@target : DomainTypes)
+    def initialize(@target : DomainTypes, name : String? = nil)
+      self.name = name if name
     end
 
     # :inherit:
     def match(value : DomainTypes) : Result
-      Result.new(value == @target)
+      value == @target ? bind(value) : no_match
     end
   end
 
@@ -54,47 +73,50 @@ module School
 
     # :inherit:
     def match(value : DomainTypes) : Result
-      Result.new(true, Bindings{name => value})
+      bind(value)
     end
   end
 
   # A "not" expression.
   #
   class Not < Expression
-    def initialize(@target : Expression)
+    def initialize(@target : Expression, name : String? = nil)
+      self.name = name if name
     end
 
-    def initialize(target : DomainTypes)
-      initialize(Lit.new(target))
+    def initialize(target : DomainTypes, name : String? = nil)
+      initialize(Lit.new(target), name: name)
     end
 
     # :inherit:
     def match(value : DomainTypes) : Result
-      match = @target.match(value)
-      Result.new(!match.success, match.bindings)
+      result = @target.match(value)
+      !result.success ? bind(value, result) : no_match
     end
   end
 
   # A "within" expression.
   #
   class Within < Expression
-    def initialize(*targets : Lit | Var)
+    def initialize(*targets : Lit | Var, name : String? = nil)
       @targets = Array(Lit | Var).new
       targets.each { |target| @targets << target }
+      self.name = name if name
     end
 
-    def initialize(*targets : DomainTypes)
+    def initialize(*targets : DomainTypes, name : String? = nil)
       @targets = Array(Lit | Var).new
       targets.each { |target| @targets << Lit.new(target) }
+      self.name = name if name
     end
 
     # :inherit:
     def match(value : DomainTypes) : Result
       @targets.each do |target|
-        match = target.match(value)
-        return match if match.success
+        result = target.match(value)
+        return bind(value, result) if result.success
       end
-      Result.new(false)
+      no_match
     end
   end
 end
