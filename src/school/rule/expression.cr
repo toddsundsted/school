@@ -80,6 +80,8 @@ module School
   # A "not" expression.
   #
   class Not < Expression
+    getter target
+
     def initialize(@target : Expression, name : String? = nil)
       self.name = name if name
     end
@@ -98,6 +100,8 @@ module School
   # A "within" expression.
   #
   class Within < Expression
+    getter targets
+
     def initialize(*targets : Lit | Var, name : String? = nil)
       @targets = Array(Lit | Var).new
       targets.each { |target| @targets << target }
