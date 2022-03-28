@@ -3,18 +3,18 @@ require "../../../src/school/rule/expression"
 
 Spectator.describe School::Lit do
   describe "#match" do
-    subject { described_class.new("lit") }
+    let(lit) { described_class.new("lit") }
 
     it "returns true if the value matches" do
-      expect(subject.match("lit").success).to be_true
+      expect(lit.match("lit").success).to be_true
     end
 
     it "returns false if the value does not match" do
-      expect(subject.match("mus").success).to be_false
+      expect(lit.match("mus").success).to be_false
     end
 
     context "nested in a not" do
-      subject { School::Not.new(described_class.new("lit")) }
+      subject { School::Not.new(lit) }
 
       it "returns false if the value matches" do
         expect(subject.match("lit").success).to be_false
@@ -22,7 +22,7 @@ Spectator.describe School::Lit do
     end
 
     context "nested in a within" do
-      subject { School::Within.new(described_class.new("lit")) }
+      subject { School::Within.new(lit) }
 
       it "returns true if the value matches" do
         expect(subject.match("lit").success).to be_true
@@ -47,14 +47,14 @@ Spectator.describe School::Var do
   end
 
   describe "#match" do
-    subject { described_class.new("var") }
+    let(var) { described_class.new("var") }
 
     it "returns the bindings" do
-      expect(subject.match("value").bindings).to eq(School::Bindings{"var" => "value"})
+      expect(var.match("value").bindings).to eq(School::Bindings{"var" => "value"})
     end
 
     context "nested in a not" do
-      subject { School::Not.new(described_class.new("var")) }
+      subject { School::Not.new(var) }
 
       it "does not return the bindings" do
         expect(subject.match("value").bindings).to be_nil
@@ -62,7 +62,7 @@ Spectator.describe School::Var do
     end
 
     context "nested in a within" do
-      subject { School::Within.new(described_class.new("var")) }
+      subject { School::Within.new(var) }
 
       it "returns the bindings" do
         expect(subject.match("value").bindings).to eq(School::Bindings{"var" => "value"})
