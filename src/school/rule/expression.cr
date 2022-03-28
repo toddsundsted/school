@@ -1,14 +1,4 @@
 module School
-  # Bindings.
-  #
-  alias Bindings = Hash(String, DomainTypes)
-
-  # Result.
-  #
-  # Holds the result of a match as well as any resulting bindings.
-  #
-  private record Result, success : Bool, bindings : Bindings? = nil
-
   # An expression.
   #
   abstract class Expression
@@ -25,7 +15,23 @@ module School
     # Returns the name of the expression.
     #
     getter! name
+  end
 
+  # Bindings.
+  #
+  alias Bindings = Hash(String, DomainTypes)
+
+  # Result.
+  #
+  # Holds the result of a match as well as any resulting bindings.
+  #
+  private record Result, success : Bool, bindings : Bindings? = nil
+
+  # Matcher.
+  #
+  # An expression that can be explicitly matched against a value.
+  #
+  module Matcher
     # Matches the expression to a value.
     #
     abstract def match(value : DomainTypes) : Result
@@ -52,6 +58,8 @@ module School
   # A literal.
   #
   class Lit < Expression
+    include Matcher
+
     getter target
 
     def initialize(@target : DomainTypes, name : String? = nil)
@@ -67,6 +75,8 @@ module School
   # A variable.
   #
   class Var < Expression
+    include Matcher
+
     def initialize(name : String)
       self.name = name
     end
@@ -80,9 +90,11 @@ module School
   # A "not" expression.
   #
   class Not < Expression
+    include Matcher
+
     getter target
 
-    def initialize(@target : Expression, name : String? = nil)
+    def initialize(@target : Matcher, name : String? = nil)
       self.name = name if name
     end
 
@@ -100,6 +112,8 @@ module School
   # A "within" expression.
   #
   class Within < Expression
+    include Matcher
+
     getter targets
 
     def initialize(*targets : Lit | Var, name : String? = nil)
@@ -117,7 +131,7 @@ module School
     # :inherit:
     def match(value : DomainTypes) : Result
       @targets.each do |target|
-        result = target.match(value)
+        result = target.as(Matcher).match(value)
         return bind(value, result) if result.success
       end
       no_match
