@@ -36,6 +36,22 @@ Spectator.describe School::Lit do
         expect(subject.match("lit").bindings).to eq(School::Bindings{"val" => "lit"})
       end
     end
+
+    context "with an accessor" do
+      it "returns an accessor" do
+        expect(lit.size).to be_a(School::Accessor)
+      end
+
+      let(bindings) { School::Bindings.new }
+
+      it "calls the named method" do
+        expect(lit.size.call(bindings)).to eq(3)
+      end
+
+      it "raises an error" do
+        expect{lit.foobar.call(bindings)}.to raise_error(ArgumentError)
+      end
+    end
   end
 end
 
@@ -66,6 +82,22 @@ Spectator.describe School::Var do
 
       it "returns the bindings" do
         expect(subject.match("value").bindings).to eq(School::Bindings{"var" => "value"})
+      end
+    end
+
+    context "with an accessor" do
+      it "returns an accessor" do
+        expect(var.size).to be_a(School::Accessor)
+      end
+
+      let(bindings) { School::Bindings{"var" => "value"} }
+
+      it "calls the named method" do
+        expect(var.size.call(bindings)).to eq(5)
+      end
+
+      it "raises an error" do
+        expect{var.foobar.call(bindings)}.to raise_error(ArgumentError)
       end
     end
   end
@@ -155,6 +187,20 @@ Spectator.describe School::Within do
       it "returns the bindings" do
         expect(subject.match("foo").bindings).to eq(School::Bindings{"val" => "foo"})
       end
+    end
+  end
+end
+
+Spectator.describe School::Accessor do
+  describe "#call" do
+    subject do
+      described_class.new do |bindings|
+        42
+      end
+    end
+
+    it "calls the block" do
+      expect(subject.call(School::Bindings.new)).to eq(42)
     end
   end
 end

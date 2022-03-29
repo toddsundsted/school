@@ -55,6 +55,21 @@ module School
     end
   end
 
+  # An accessor.
+  #
+  # Wraps a method call or other operation, implemented as a block.
+  #
+  class Accessor < Expression
+    def initialize(&@block : Bindings -> DomainTypes?)
+    end
+
+    # Calls the block, passing in the current bindings.
+    #
+    def call(bindings : Bindings) : DomainTypes?
+      @block.call(bindings)
+    end
+  end
+
   # A literal.
   #
   class Lit < Expression
@@ -70,6 +85,19 @@ module School
     def match(value : DomainTypes) : Result
       value == @target ? bind(value) : no_match
     end
+
+    # Generates an accessor that performs the method call on the
+    # literal value.
+    #
+    macro method_missing(call)
+      Accessor.new do |bindings|
+        if (t = target).responds_to?({{call.name.symbolize}})
+          t.{{call.name.id}}
+        else
+          raise ArgumentError.new("#{target.class} does not respond to {{call.name}}")
+        end
+      end
+    end
   end
 
   # A variable.
@@ -84,6 +112,19 @@ module School
     # :inherit:
     def match(value : DomainTypes) : Result
       bind(value)
+    end
+
+    # Generates an accessor that performs the method call on the
+    # bound value.
+    #
+    macro method_missing(call)
+      Accessor.new do |bindings|
+        if (t = bindings[name]) && t.responds_to?({{call.name.symbolize}})
+          t.{{call.name.id}}
+        else
+          raise ArgumentError.new("#{target.class} does not respond to {{call.name}}")
+        end
+      end
     end
   end
 
