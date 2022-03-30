@@ -4,7 +4,10 @@ require "../fact"
 module School
   # A pattern.
   #
-  abstract class Pattern
+  # Prefer `Pattern` over `BasePattern` since classes derived from
+  # `Pattern` can be used with special patterns `Any` and `None`.
+  #
+  abstract class BasePattern
     # Returns the variables in the pattern.
     #
     abstract def vars : Enumerable(String)
@@ -18,8 +21,8 @@ module School
     # A special pattern that indicates a condition that is satisfied
     # if and only if at least one fact matches the wrapped pattern.
     #
-    class Any < Pattern
-      def initialize(@pattern : BasePattern)
+    class Any < BasePattern
+      def initialize(@pattern : Pattern)
       end
 
       # :inherit:
@@ -36,8 +39,8 @@ module School
     # A special pattern that indicates a condition that is satisfied
     # if and only if no facts match the wrapped pattern.
     #
-    class None < Pattern
-      def initialize(@pattern : BasePattern)
+    class None < BasePattern
+      def initialize(@pattern : Pattern)
       end
 
       # :inherit:
@@ -52,17 +55,14 @@ module School
     end
   end
 
-  # Base class for patterns.
+  # A pattern.
   #
-  # Prefer this class over `Pattern` since classes derived from this
-  # class can be used with the special patterns `Any` and `None`.
-  #
-  abstract class BasePattern < Pattern
+  abstract class Pattern < BasePattern
   end
 
-  # Base class for patterns that match against the `Fact` database.
+  # Patterns that match against the `Fact` database.
   #
-  abstract class BaseFactPattern < BasePattern
+  abstract class FactPattern < Pattern
     # Indicates whether or not the fact matches the pattern.
     #
     abstract def match(fact : Fact, bindings : Bindings) : Bindings?
@@ -95,7 +95,7 @@ module School
 
   # A pattern that matches a fact.
   #
-  class NullaryPattern(F) < BaseFactPattern
+  class NullaryPattern(F) < FactPattern
     def initialize
       initialize(F)
     end
@@ -121,7 +121,7 @@ module School
 
   # A pattern that matches a fact with one argument.
   #
-  class UnaryPattern(F, C) < BaseFactPattern
+  class UnaryPattern(F, C) < FactPattern
     getter c
 
     def initialize(c : C)
@@ -164,7 +164,7 @@ module School
 
   # A pattern that matches a fact with two arguments.
   #
-  class BinaryPattern(F, A, B) < BaseFactPattern
+  class BinaryPattern(F, A, B) < FactPattern
     getter a, b
 
     def initialize(a : A, b : B)
@@ -219,7 +219,7 @@ module School
 
   # A pattern that wraps a proc.
   #
-  class ProcPattern < BasePattern
+  class ProcPattern < Pattern
     alias ProcType = Proc(Bindings, Bindings | Nil)
 
     def initialize(@proc : ProcType)

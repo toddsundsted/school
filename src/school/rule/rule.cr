@@ -10,10 +10,10 @@ module School
   #
   class Rule
     def initialize(name : String)
-      initialize(name, [] of Pattern, [] of Action)
+      initialize(name, [] of BasePattern, [] of Action)
     end
 
-    protected def initialize(@name : String, @conditions : Array(Pattern), @actions : Array(Action))
+    protected def initialize(@name : String, @conditions : Array(BasePattern), @actions : Array(Action))
     end
 
     getter name

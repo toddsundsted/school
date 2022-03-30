@@ -215,7 +215,7 @@ Spectator.describe School::Pattern::Any do
 
   describe ".new" do
     it "instantiates a new pattern by wrapping a pattern" do
-      expect(described_class.new(School::NullaryPattern.new(MockFact))).to be_a(School::Pattern)
+      expect(described_class.new(School::NullaryPattern.new(MockFact))).to be_a(School::BasePattern)
     end
   end
 
@@ -246,7 +246,7 @@ Spectator.describe School::Pattern::None do
 
   describe ".new" do
     it "instantiates a new pattern by wrapping a pattern" do
-      expect(described_class.new(School::NullaryPattern.new(MockFact))).to be_a(School::Pattern)
+      expect(described_class.new(School::NullaryPattern.new(MockFact))).to be_a(School::BasePattern)
     end
   end
 

@@ -7,7 +7,7 @@ module School
     # Used internally to build rules with a DSL.
     #
     class Builder
-      @conditions = [] of Pattern
+      @conditions = [] of BasePattern
       @actions = [] of Action
 
       def initialize(@name : String)

@@ -63,7 +63,7 @@ module School
 
     private record Match, rule : Rule, bindings : Bindings
 
-    private def each_match(conditions : Array(Pattern), bindings = Bindings.new, &block : Bindings ->)
+    private def each_match(conditions : Array(BasePattern), bindings = Bindings.new, &block : Bindings ->)
       if (condition = conditions.first?)
         condition.match(bindings) do |temporary|
           each_match(conditions[1..-1], temporary, &block) if temporary
