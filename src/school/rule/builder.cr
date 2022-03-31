@@ -47,33 +47,33 @@ module School
         self
       end
 
-      def condition(p : Pattern.class)
-        @conditions << p.new
+      def condition(p : Pattern.class, **options)
+        @conditions << p.new(**options)
         self
       end
 
-      def condition(p : Pattern.class, m)
-        @conditions << p.new(l(m))
+      def condition(p : Pattern.class, m, **options)
+        @conditions << p.new(l(m), **options)
         self
       end
 
-      def condition(m, p : Pattern.class)
-        @conditions << p.new(l(m))
+      def condition(m, p : Pattern.class, **options)
+        @conditions << p.new(l(m), **options)
         self
       end
 
-      def condition(p : Pattern.class, m1, m2)
-        @conditions << p.new(l(m1), l(m2))
+      def condition(p : Pattern.class, m1, m2, **options)
+        @conditions << p.new(l(m1), l(m2), **options)
         self
       end
 
-      def condition(m1, p : Pattern.class, m2)
-        @conditions << p.new(l(m1), l(m2))
+      def condition(m1, p : Pattern.class, m2, **options)
+        @conditions << p.new(l(m1), l(m2), **options)
         self
       end
 
-      def condition(m1, m2, p : Pattern.class)
-        @conditions << p.new(l(m1), l(m2))
+      def condition(m1, m2, p : Pattern.class, **options)
+        @conditions << p.new(l(m1), l(m2), **options)
         self
       end
 
@@ -117,33 +117,33 @@ module School
         self
       end
 
-      def any(p : Pattern.class)
-        @conditions << Pattern::Any.new(p.new)
+      def any(p : Pattern.class, **options)
+        @conditions << Pattern::Any.new(p.new(**options))
         self
       end
 
-      def any(p : Pattern.class, m)
-        @conditions << Pattern::Any.new(p.new(l(m)))
+      def any(p : Pattern.class, m, **options)
+        @conditions << Pattern::Any.new(p.new(l(m), **options))
         self
       end
 
-      def any(m, p : Pattern.class)
-        @conditions << Pattern::Any.new(p.new(l(m)))
+      def any(m, p : Pattern.class, **options)
+        @conditions << Pattern::Any.new(p.new(l(m), **options))
         self
       end
 
-      def any(p : Pattern.class, m1, m2)
-        @conditions << Pattern::Any.new(p.new(l(m1), l(m2)))
+      def any(p : Pattern.class, m1, m2, **options)
+        @conditions << Pattern::Any.new(p.new(l(m1), l(m2), **options))
         self
       end
 
-      def any(m1, p : Pattern.class, m2)
-        @conditions << Pattern::Any.new(p.new(l(m1), l(m2)))
+      def any(m1, p : Pattern.class, m2, **options)
+        @conditions << Pattern::Any.new(p.new(l(m1), l(m2), **options))
         self
       end
 
-      def any(m1, m2, p : Pattern.class)
-        @conditions << Pattern::Any.new(p.new(l(m1), l(m2)))
+      def any(m1, m2, p : Pattern.class, **options)
+        @conditions << Pattern::Any.new(p.new(l(m1), l(m2), **options))
         self
       end
 
@@ -187,33 +187,33 @@ module School
         self
       end
 
-      def none(p : Pattern.class)
-        @conditions << Pattern::None.new(p.new)
+      def none(p : Pattern.class, **options)
+        @conditions << Pattern::None.new(p.new(**options))
         self
       end
 
-      def none(p : Pattern.class, m)
-        @conditions << Pattern::None.new(p.new(l(m)))
+      def none(p : Pattern.class, m, **options)
+        @conditions << Pattern::None.new(p.new(l(m), **options))
         self
       end
 
-      def none(m, p : Pattern.class)
-        @conditions << Pattern::None.new(p.new(l(m)))
+      def none(m, p : Pattern.class, **options)
+        @conditions << Pattern::None.new(p.new(l(m), **options))
         self
       end
 
-      def none(p : Pattern.class, m1, m2)
-        @conditions << Pattern::None.new(p.new(l(m1), l(m2)))
+      def none(p : Pattern.class, m1, m2, **options)
+        @conditions << Pattern::None.new(p.new(l(m1), l(m2), **options))
         self
       end
 
-      def none(m1, p : Pattern.class, m2)
-        @conditions << Pattern::None.new(p.new(l(m1), l(m2)))
+      def none(m1, p : Pattern.class, m2, **options)
+        @conditions << Pattern::None.new(p.new(l(m1), l(m2), **options))
         self
       end
 
-      def none(m1, m2, p : Pattern.class)
-        @conditions << Pattern::None.new(p.new(l(m1), l(m2)))
+      def none(m1, m2, p : Pattern.class, **options)
+        @conditions << Pattern::None.new(p.new(l(m1), l(m2), **options))
         self
       end
 
