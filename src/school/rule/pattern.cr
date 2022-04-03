@@ -117,6 +117,12 @@ module School
         bindings
       end
     end
+
+    # Asserts the associated `Fact`.
+    #
+    def self.assert(bindings : Bindings)
+      Fact.assert(F.new)
+    end
   end
 
   # A pattern that matches a fact with one argument.
@@ -159,6 +165,21 @@ module School
           check_result(c.match(fact.c), bindings)
         end
       end
+    end
+
+    # Asserts the associated `Fact`.
+    #
+    def self.assert(c : F::C | Lit | Var, bindings : Bindings)
+      if c.is_a?(Lit)
+        unless (c = c.target).is_a?(F::C)
+          raise ArgumentError.new
+        end
+      elsif c.is_a?(Var)
+        unless (name = c.name?) && (c = bindings[name]?) && c.is_a?(F::C)
+          raise ArgumentError.new
+        end
+      end
+      Fact.assert(F.new(c))
     end
   end
 
@@ -214,6 +235,30 @@ module School
           end
         end
       end
+    end
+
+    # Asserts the associated `Fact`.
+    #
+    def self.assert(a : F::A | Lit | Var, b : F::B | Lit | Var, bindings : Bindings)
+      if a.is_a?(Lit)
+        unless (a = a.target).is_a?(F::A)
+          raise ArgumentError.new
+        end
+      elsif a.is_a?(Var)
+        unless (name = a.name?) && (a = bindings[name]?) && a.is_a?(F::A)
+          raise ArgumentError.new
+        end
+      end
+      if b.is_a?(Lit)
+        unless (b = b.target).is_a?(F::B)
+          raise ArgumentError.new
+        end
+      elsif b.is_a?(Var)
+        unless (name = b.name?) && (b = bindings[name]?) && b.is_a?(F::B)
+          raise ArgumentError.new
+        end
+      end
+      Fact.assert(F.new(a, b))
     end
   end
 

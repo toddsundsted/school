@@ -292,6 +292,143 @@ Spectator.describe School::Rule::Builder do
     end
   end
 
+  describe "#assert" do
+    let(rule) { School::Rule.new("") }
+    let(bindings) { School::Bindings.new }
+
+    # nullary assertion
+
+    context "given a fact" do
+      before_each { School::Fact.clear! }
+
+      it "adds an action to the rule" do
+        expect{subject.assert(MockFact)}.to change{subject.build.actions.size}
+      end
+
+      it "asserts a fact when the action is called" do
+        expect{subject.assert(MockFact).build.actions.first.call(rule, bindings)}.to change{School::Fact.facts.first?}.to(MockFact.new)
+      end
+
+      it "adds an action to the rule" do
+        expect{subject.assert(School::NullaryPattern(MockFact))}.to change{subject.build.actions.size}
+      end
+
+      it "asserts a fact when the action is called" do
+        expect{subject.assert(School::NullaryPattern(MockFact)).build.actions.first.call(rule, bindings)}.to change{School::Fact.facts.first?}.to(MockFact.new)
+      end
+    end
+
+    # unary assertion, first argument
+
+    context "given a property" do
+      before_each { School::Fact.clear! }
+
+      it "adds an action to the rule" do
+        expect{subject.assert(MockProperty, School::Lit.new(123))}.to change{subject.build.actions.size}
+      end
+
+      it "asserts a fact when the action is called" do
+        expect{subject.assert(MockProperty, School::Lit.new(123)).build.actions.first.call(rule, bindings)}.to change{School::Fact.facts.first?}.to(MockProperty.new(123))
+      end
+
+      it "adds an action to the rule" do
+        expect{subject.assert(School::UnaryPattern(MockProperty, Int32), School::Lit.new(123))}.to change{subject.build.actions.size}
+      end
+
+      it "asserts a fact when the action is called" do
+        expect{subject.assert(School::UnaryPattern(MockProperty, Int32), School::Lit.new(123)).build.actions.first.call(rule, bindings)}.to change{School::Fact.facts.first?}.to(MockProperty.new(123))
+      end
+    end
+
+    # unary assertion, second argument
+
+    context "given a property" do
+      before_each { School::Fact.clear! }
+
+      it "adds an action to the rule" do
+        expect{subject.assert(School::Lit.new(123), MockProperty)}.to change{subject.build.actions.size}
+      end
+
+      it "asserts a fact when the action is called" do
+        expect{subject.assert(School::Lit.new(123), MockProperty).build.actions.first.call(rule, bindings)}.to change{School::Fact.facts.first?}.to(MockProperty.new(123))
+      end
+
+      it "adds an action to the rule" do
+        expect{subject.assert(School::Lit.new(123), School::UnaryPattern(MockProperty, Int32))}.to change{subject.build.actions.size}
+      end
+
+      it "asserts a fact when the action is called" do
+        expect{subject.assert(School::Lit.new(123), School::UnaryPattern(MockProperty, Int32)).build.actions.first.call(rule, bindings)}.to change{School::Fact.facts.first?}.to(MockProperty.new(123))
+      end
+    end
+
+    # binary assertion, first argument
+
+    context "given a relationship" do
+      before_each { School::Fact.clear! }
+
+      it "adds an action to the rule" do
+        expect{subject.assert(MockRelationship, School::Lit.new("abc"), School::Lit.new("xyz"))}.to change{subject.build.actions.size}
+      end
+
+      it "asserts a fact when the action is called" do
+        expect{subject.assert(MockRelationship, School::Lit.new("abc"), School::Lit.new("xyz")).build.actions.first.call(rule, bindings)}.to change{School::Fact.facts.first?}.to(MockRelationship.new("abc", "xyz"))
+      end
+
+      it "adds an action to the rule" do
+        expect{subject.assert(School::BinaryPattern(MockRelationship, String, String), School::Lit.new("abc"), School::Lit.new("xyz"))}.to change{subject.build.actions.size}
+      end
+
+      it "asserts a fact when the action is called" do
+        expect{subject.assert(School::BinaryPattern(MockRelationship, String, String), School::Lit.new("abc"), School::Lit.new("xyz")).build.actions.first.call(rule, bindings)}.to change{School::Fact.facts.first?}.to(MockRelationship.new("abc", "xyz"))
+      end
+    end
+
+    # binary assertion, second argument
+
+    context "given a relationship" do
+      before_each { School::Fact.clear! }
+
+      it "adds an action to the rule" do
+        expect{subject.assert(School::Lit.new("abc"), MockRelationship, School::Lit.new("xyz"))}.to change{subject.build.actions.size}
+      end
+
+      it "asserts a fact when the action is called" do
+        expect{subject.assert(School::Lit.new("abc"), MockRelationship, School::Lit.new("xyz")).build.actions.first.call(rule, bindings)}.to change{School::Fact.facts.first?}.to(MockRelationship.new("abc", "xyz"))
+      end
+
+      it "adds an action to the rule" do
+        expect{subject.assert(School::Lit.new("abc"), School::BinaryPattern(MockRelationship, String, String), School::Lit.new("xyz"))}.to change{subject.build.actions.size}
+      end
+
+      it "asserts a fact when the action is called" do
+        expect{subject.assert(School::Lit.new("abc"), School::BinaryPattern(MockRelationship, String, String), School::Lit.new("xyz")).build.actions.first.call(rule, bindings)}.to change{School::Fact.facts.first?}.to(MockRelationship.new("abc", "xyz"))
+      end
+    end
+
+    # binary assertion, third argument
+
+    context "given a relationship" do
+      before_each { School::Fact.clear! }
+
+      it "adds an action to the rule" do
+        expect{subject.assert(School::Lit.new("abc"), School::Lit.new("xyz"), MockRelationship)}.to change{subject.build.actions.size}
+      end
+
+      it "asserts a fact when the action is called" do
+        expect{subject.assert(School::Lit.new("abc"), School::Lit.new("xyz"), MockRelationship).build.actions.first.call(rule, bindings)}.to change{School::Fact.facts.first?}.to(MockRelationship.new("abc", "xyz"))
+      end
+
+      it "adds an action to the rule" do
+        expect{subject.assert(School::Lit.new("abc"), School::Lit.new("xyz"), School::BinaryPattern(MockRelationship, String, String))}.to change{subject.build.actions.size}
+      end
+
+      it "asserts a fact when the action is called" do
+        expect{subject.assert(School::Lit.new("abc"), School::Lit.new("xyz"), School::BinaryPattern(MockRelationship, String, String)).build.actions.first.call(rule, bindings)}.to change{School::Fact.facts.first?}.to(MockRelationship.new("abc", "xyz"))
+      end
+    end
+  end
+
   describe "#action" do
     # given a block
 

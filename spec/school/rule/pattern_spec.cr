@@ -48,6 +48,16 @@ Spectator.describe School::NullaryPattern do
       expect{described_class.new(MockFact).match(bindings, &proc)}.to change{output.dup}.to(["called"])
     end
   end
+
+  describe ".assert" do
+    before_each { School::Fact.clear! }
+
+    let(bindings) { School::Bindings.new }
+
+    it "asserts the fact" do
+      expect{School::NullaryPattern(MockFact).assert(bindings)}.to change{School::Fact.facts.first?}.to(MockFact.new)
+    end
+  end
 end
 
 Spectator.describe School::UnaryPattern do
@@ -104,6 +114,24 @@ Spectator.describe School::UnaryPattern do
     it "returns nil if the fact does not match" do
       fact = MockFact.new
       expect(described_class.new(MockProperty, 123).match(fact, bindings)).to be_nil
+    end
+  end
+
+  describe ".assert" do
+    before_each { School::Fact.clear! }
+
+    let(bindings) { School::Bindings{"c" => 123} }
+
+    it "asserts the fact" do
+      expect{School::UnaryPattern(MockProperty, Int32).assert(School::Var.new("c"), bindings)}.to change{School::Fact.facts.first?}.to(MockProperty.new(123))
+    end
+
+    it "raises an error if the name is not bound" do
+      expect{School::UnaryPattern(MockProperty, Int32).assert(School::Var.new("x"), bindings)}.to raise_error(ArgumentError)
+    end
+
+    it "asserts the fact" do
+      expect{School::UnaryPattern(MockProperty, Int32).assert(123, bindings)}.to change{School::Fact.facts.first?}.to(MockProperty.new(123))
     end
   end
 end
@@ -206,6 +234,28 @@ Spectator.describe School::BinaryPattern do
     it "returns nil if the fact does not match" do
       fact = MockFact.new
       expect(described_class.new(MockRelationship, "abc", "xyz").match(fact, bindings)).to be_nil
+    end
+  end
+
+  describe ".assert" do
+    before_each { School::Fact.clear! }
+
+    let(bindings) { School::Bindings{"a" => "abc", "b" => "xyz"} }
+
+    it "asserts the fact" do
+      expect{School::BinaryPattern(MockRelationship, String, String).assert(School::Var.new("a"), School::Var.new("b"), bindings)}.to change{School::Fact.facts.first?}.to(MockRelationship.new("abc", "xyz"))
+    end
+
+    it "raises an error if the name is not bound" do
+      expect{School::BinaryPattern(MockRelationship, String, String).assert(School::Var.new("x"), School::Var.new("b"), bindings)}.to raise_error(ArgumentError)
+    end
+
+    it "raises an error if the name is not bound" do
+      expect{School::BinaryPattern(MockRelationship, String, String).assert(School::Var.new("a"), School::Var.new("x"), bindings)}.to raise_error(ArgumentError)
+    end
+
+    it "asserts the fact" do
+      expect{School::BinaryPattern(MockRelationship, String, String).assert("abc", "xyz", bindings)}.to change{School::Fact.facts.first?}.to(MockRelationship.new("abc", "xyz"))
     end
   end
 end
