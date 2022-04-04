@@ -429,6 +429,143 @@ Spectator.describe School::Rule::Builder do
     end
   end
 
+  describe "#retract" do
+    let(rule) { School::Rule.new("") }
+    let(bindings) { School::Bindings.new }
+
+    # nullary retraction
+
+    context "given a fact" do
+      before_each { School::Fact.clear! && School::Fact.assert(MockFact.new) }
+
+      it "adds an action to the rule" do
+        expect{subject.retract(MockFact)}.to change{subject.build.actions.size}
+      end
+
+      it "retracts a fact when the action is called" do
+        expect{subject.retract(MockFact).build.actions.first.call(rule, bindings)}.to change{School::Fact.facts.first?}.to(nil)
+      end
+
+      it "adds an action to the rule" do
+        expect{subject.retract(School::NullaryPattern(MockFact))}.to change{subject.build.actions.size}
+      end
+
+      it "retracts a fact when the action is called" do
+        expect{subject.retract(School::NullaryPattern(MockFact)).build.actions.first.call(rule, bindings)}.to change{School::Fact.facts.first?}.to(nil)
+      end
+    end
+
+    # unary retraction, first argument
+
+    context "given a property" do
+      before_each { School::Fact.clear! && School::Fact.assert(MockProperty.new(123)) }
+
+      it "adds an action to the rule" do
+        expect{subject.retract(MockProperty, School::Lit.new(123))}.to change{subject.build.actions.size}
+      end
+
+      it "retracts a fact when the action is called" do
+        expect{subject.retract(MockProperty, School::Lit.new(123)).build.actions.first.call(rule, bindings)}.to change{School::Fact.facts.first?}.to(nil)
+      end
+
+      it "adds an action to the rule" do
+        expect{subject.retract(School::UnaryPattern(MockProperty, Int32), School::Lit.new(123))}.to change{subject.build.actions.size}
+      end
+
+      it "retracts a fact when the action is called" do
+        expect{subject.retract(School::UnaryPattern(MockProperty, Int32), School::Lit.new(123)).build.actions.first.call(rule, bindings)}.to change{School::Fact.facts.first?}.to(nil)
+      end
+    end
+
+    # unary retraction, second argument
+
+    context "given a property" do
+      before_each { School::Fact.clear! && School::Fact.assert(MockProperty.new(123)) }
+
+      it "adds an action to the rule" do
+        expect{subject.retract(School::Lit.new(123), MockProperty)}.to change{subject.build.actions.size}
+      end
+
+      it "retracts a fact when the action is called" do
+        expect{subject.retract(School::Lit.new(123), MockProperty).build.actions.first.call(rule, bindings)}.to change{School::Fact.facts.first?}.to(nil)
+      end
+
+      it "adds an action to the rule" do
+        expect{subject.retract(School::Lit.new(123), School::UnaryPattern(MockProperty, Int32))}.to change{subject.build.actions.size}
+      end
+
+      it "retracts a fact when the action is called" do
+        expect{subject.retract(School::Lit.new(123), School::UnaryPattern(MockProperty, Int32)).build.actions.first.call(rule, bindings)}.to change{School::Fact.facts.first?}.to(nil)
+      end
+    end
+
+    # binary retraction, first argument
+
+    context "given a relationship" do
+      before_each { School::Fact.clear! && School::Fact.assert(MockRelationship.new("abc", "xyz")) }
+
+      it "adds an action to the rule" do
+        expect{subject.retract(MockRelationship, School::Lit.new("abc"), School::Lit.new("xyz"))}.to change{subject.build.actions.size}
+      end
+
+      it "retracts a fact when the action is called" do
+        expect{subject.retract(MockRelationship, School::Lit.new("abc"), School::Lit.new("xyz")).build.actions.first.call(rule, bindings)}.to change{School::Fact.facts.first?}.to(nil)
+      end
+
+      it "adds an action to the rule" do
+        expect{subject.retract(School::BinaryPattern(MockRelationship, String, String), School::Lit.new("abc"), School::Lit.new("xyz"))}.to change{subject.build.actions.size}
+      end
+
+      it "retracts a fact when the action is called" do
+        expect{subject.retract(School::BinaryPattern(MockRelationship, String, String), School::Lit.new("abc"), School::Lit.new("xyz")).build.actions.first.call(rule, bindings)}.to change{School::Fact.facts.first?}.to(nil)
+      end
+    end
+
+    # binary retraction, second argument
+
+    context "given a relationship" do
+      before_each { School::Fact.clear! && School::Fact.assert(MockRelationship.new("abc", "xyz")) }
+
+      it "adds an action to the rule" do
+        expect{subject.retract(School::Lit.new("abc"), MockRelationship, School::Lit.new("xyz"))}.to change{subject.build.actions.size}
+      end
+
+      it "retracts a fact when the action is called" do
+        expect{subject.retract(School::Lit.new("abc"), MockRelationship, School::Lit.new("xyz")).build.actions.first.call(rule, bindings)}.to change{School::Fact.facts.first?}.to(nil)
+      end
+
+      it "adds an action to the rule" do
+        expect{subject.retract(School::Lit.new("abc"), School::BinaryPattern(MockRelationship, String, String), School::Lit.new("xyz"))}.to change{subject.build.actions.size}
+      end
+
+      it "retracts a fact when the action is called" do
+        expect{subject.retract(School::Lit.new("abc"), School::BinaryPattern(MockRelationship, String, String), School::Lit.new("xyz")).build.actions.first.call(rule, bindings)}.to change{School::Fact.facts.first?}.to(nil)
+      end
+    end
+
+    # binary retraction, third argument
+
+    context "given a relationship" do
+      before_each { School::Fact.clear! && School::Fact.assert(MockRelationship.new("abc", "xyz")) }
+
+      it "adds an action to the rule" do
+        expect{subject.retract(School::Lit.new("abc"), School::Lit.new("xyz"), MockRelationship)}.to change{subject.build.actions.size}
+      end
+
+      it "retracts a fact when the action is called" do
+        expect{subject.retract(School::Lit.new("abc"), School::Lit.new("xyz"), MockRelationship).build.actions.first.call(rule, bindings)}.to change{School::Fact.facts.first?}.to(nil)
+      end
+
+      it "adds an action to the rule" do
+        expect{subject.retract(School::Lit.new("abc"), School::Lit.new("xyz"), School::BinaryPattern(MockRelationship, String, String))}.to change{subject.build.actions.size}
+      end
+
+      it "retracts a fact when the action is called" do
+        expect{subject.retract(School::Lit.new("abc"), School::Lit.new("xyz"), School::BinaryPattern(MockRelationship, String, String)).build.actions.first.call(rule, bindings)}.to change{School::Fact.facts.first?}.to(nil)
+      end
+    end
+  end
+
   describe "#action" do
     # given a block
 

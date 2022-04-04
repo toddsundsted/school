@@ -290,6 +290,66 @@ module School
         self
       end
 
+      def retract(f : Fact.class)
+        @actions << Action.new { |rule, bindings| typeof(NullaryPattern.new(f)).retract(bindings) }
+        self
+      end
+
+      def retract(f : Fact.class, m)
+        @actions << Action.new { |rule, bindings| typeof(UnaryPattern.new(f, m)).retract(m, bindings) }
+        self
+      end
+
+      def retract(m, f : Fact.class)
+        @actions << Action.new { |rule, bindings| typeof(UnaryPattern.new(f, m)).retract(m, bindings) }
+        self
+      end
+
+      def retract(f : Fact.class, m1, m2)
+        @actions << Action.new { |rule, bindings| typeof(BinaryPattern.new(f, m1, m2)).retract(m1, m2, bindings) }
+        self
+      end
+
+      def retract(m1, f : Fact.class, m2)
+        @actions << Action.new { |rule, bindings| typeof(BinaryPattern.new(f, m1, m2)).retract(m1, m2, bindings) }
+        self
+      end
+
+      def retract(m1, m2, f : Fact.class)
+        @actions << Action.new { |rule, bindings| typeof(BinaryPattern.new(f, m1, m2)).retract(m1, m2, bindings) }
+        self
+      end
+
+      def retract(p : Pattern.class, **options)
+        @actions << Action.new { |rule, bindings| p.retract(bindings, **options) }
+        self
+      end
+
+      def retract(p : Pattern.class, m, **options)
+        @actions << Action.new { |rule, bindings| p.retract(m, bindings, **options) }
+        self
+      end
+
+      def retract(m, p : Pattern.class, **options)
+        @actions << Action.new { |rule, bindings| p.retract(m, bindings, **options) }
+        self
+      end
+
+      def retract(p : Pattern.class, m1, m2, **options)
+        @actions << Action.new { |rule, bindings| p.retract(m1, m2, bindings, **options) }
+        self
+      end
+
+      def retract(m1, p : Pattern.class, m2, **options)
+        @actions << Action.new { |rule, bindings| p.retract(m1, m2, bindings, **options) }
+        self
+      end
+
+      def retract(m1, m2, p : Pattern.class, **options)
+        @actions << Action.new { |rule, bindings| p.retract(m1, m2, bindings, **options) }
+        self
+      end
+
       def action(&action : Action)
         @actions << action
         self
