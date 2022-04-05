@@ -1,4 +1,5 @@
 require "./spec_helper"
+require "../src/school"
 
 Spectator.describe School do
   describe "::VERSION" do
