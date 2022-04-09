@@ -1,4 +1,7 @@
 require "../rule"
+{% if flag?(:"school:metrics") %}
+  require "./metrics"
+{% end %}
 
 module School
   # A domain is a collection of facts.
@@ -65,6 +68,9 @@ module School
 
     private def each_match(conditions : Array(BasePattern), bindings = Bindings.new, &block : Bindings ->)
       if (condition = conditions.first?)
+        {% if flag?(:"school:metrics") %}
+          Metrics.count_condition
+        {% end %}
         condition.match(bindings) do |temporary|
           each_match(conditions[1..-1], temporary, &block) if temporary
         end
@@ -76,6 +82,9 @@ module School
     private def match_all
       Array(Match).new.tap do |matches|
         rules.each do |rule|
+          {% if flag?(:"school:metrics") %}
+            Metrics.count_rule
+          {% end %}
           each_match(rule.conditions) do |bindings|
             matches << Match.new(rule, bindings)
           end
@@ -96,6 +105,9 @@ module School
     # rules' actions for each distinct match.
     #
     def run
+      {% if flag?(:"school:metrics") %}
+        Metrics.count_run
+      {% end %}
       @changed = false
       match_all.each do |match|
         match.rule.call(match.bindings)
