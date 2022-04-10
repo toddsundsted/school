@@ -111,9 +111,9 @@ module School
       @changed = false
       match_all.each do |match|
         match.rule.call(match.bindings)
-        return Status::Paused if @changed
+        break if @changed
       end
-      Status::Completed
+      @changed ? Status::Paused : Status::Completed
     end
   end
 end
