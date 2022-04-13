@@ -17,6 +17,15 @@ module School
     getter! name
   end
 
+  # Include in client classes that participate as domain types.
+  #
+  module DomainType
+  end
+
+  # All supported domain types.
+  #
+  alias DomainTypes = DomainType | String | Symbol | Float64 | Float32 | Int64 | Int32 | Char | Bool | Nil
+
   # Bindings.
   #
   alias Bindings = Hash(String, DomainTypes)

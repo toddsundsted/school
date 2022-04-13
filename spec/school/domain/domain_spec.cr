@@ -100,7 +100,7 @@ Spectator.describe School::Domain do
   end
 
   describe "#run" do
-    let(output) { [] of DomainTypes }
+    let(output) { [] of School::DomainTypes }
 
     let(action) do
       School::Action.new do |rule, bindings|

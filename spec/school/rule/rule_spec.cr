@@ -33,7 +33,7 @@ Spectator.describe School::Rule do
 
     let(bindings) { School::Bindings{"a" => "A", "b" => "B"} }
 
-    let(output) { [] of DomainTypes }
+    let(output) { [] of School::DomainTypes }
 
     it "invokes the actions" do
       expect{subject.call(bindings)}.to change{output.dup}.to(["a", "b", "A", "B"])
