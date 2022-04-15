@@ -6,7 +6,7 @@ description: The School rules engine.
 authors:
   - Todd Sundsted
 
-crystal: 1.2.2
+crystal: ">= 1.0.0, < 2.0.0"
 
 license: MIT
 
