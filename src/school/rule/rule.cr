@@ -13,7 +13,7 @@ module School
       initialize(name, [] of BasePattern, [] of Action)
     end
 
-    protected def initialize(@name : String, @conditions : Array(BasePattern), @actions : Array(Action))
+    def initialize(@name : String, @conditions : Array(BasePattern), @actions : Array(Action))
     end
 
     getter name
