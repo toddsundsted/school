@@ -102,7 +102,7 @@ module School
 
     def initialize(fact_class : F.class)
       {% unless F < Fact && F.ancestors.all?(&.type_vars.empty?) %}
-        {% raise "#{F} is not a nullary Fact" %}
+        {% raise "#{F} is not a nullary School::Fact" %}
       {% end %}
     end
 
@@ -144,11 +144,11 @@ module School
       {% begin %}
         {% ancestor = F.ancestors.find { |a| !a.type_vars.empty? } %}
         {% if F < Fact && ancestor && (types = ancestor.type_vars).size == 1 %}
-          {% unless C == types[0] || C < Expression %}
-            {% raise "the argument must be #{types[0]} or Expression, not #{C}" %}
+          {% unless C == types[0] || C <= Expression %}
+            {% raise "the argument must be #{types[0]} or School::Expression, not #{C}" %}
           {% end %}
         {% else %}
-          {% raise "#{F} is not a unary Fact" %}
+          {% raise "#{F} is not a unary School::Fact" %}
         {% end %}
       {% end %}
     end
@@ -167,7 +167,7 @@ module School
       if fact.is_a?(F)
         if fact.c == self.c
           bindings
-        elsif (c = self.c).is_a?(Expression)
+        elsif (c = self.c).is_a?(Matcher)
           check_result(c.match(fact.c), bindings)
         end
       end
@@ -212,14 +212,14 @@ module School
       {% begin %}
         {% ancestor = F.ancestors.find { |a| !a.type_vars.empty? } %}
         {% if F < Fact && ancestor && (types = ancestor.type_vars).size == 2 %}
-          {% unless A == types[0] || A < Expression %}
-            {% raise "the first argument must be #{types[0]} or Expression, not #{A}" %}
+          {% unless A == types[0] || A <= Expression %}
+            {% raise "the first argument must be #{types[0]} or School::Expression, not #{A}" %}
           {% end %}
-          {% unless B == types[1] || B < Expression %}
-            {% raise "the second argument must be #{types[1]} or Expression, not #{B}" %}
+          {% unless B == types[1] || B <= Expression %}
+            {% raise "the second argument must be #{types[1]} or School::Expression, not #{B}" %}
           {% end %}
         {% else %}
-          {% raise "#{F} is not a binary Fact" %}
+          {% raise "#{F} is not a binary School::Fact" %}
         {% end %}
       {% end %}
     end
@@ -241,11 +241,11 @@ module School
       if fact.is_a?(F)
         if fact.a == self.a && fact.b == self.b
           bindings
-        elsif fact.a == self.a && (b = self.b).is_a?(Expression)
+        elsif fact.a == self.a && (b = self.b).is_a?(Matcher)
           check_result(b.match(fact.b), bindings)
-        elsif fact.b == self.b && (a = self.a).is_a?(Expression)
+        elsif fact.b == self.b && (a = self.a).is_a?(Matcher)
           check_result(a.match(fact.a), bindings)
-        elsif (a = self.a).is_a?(Expression) && (b = self.b).is_a?(Expression)
+        elsif (a = self.a).is_a?(Matcher) && (b = self.b).is_a?(Matcher)
           [a.match(fact.a), b.match(fact.b)].reduce(bindings) do |bindings, result|
             check_result(result, bindings) if bindings
           end

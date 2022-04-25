@@ -83,6 +83,12 @@ Spectator.describe School::UnaryPattern do
     it "accepts a var as the argument" do
       expect(described_class.new(MockProperty, School::Var.new("c"))).to be_a(School::Pattern)
     end
+
+    it "compiles" do
+      # ensure `expression` is type `School::Expression+`
+      expression = (rand > 0.5) ? School::Lit.new("e") : School::Var.new("e")
+      expect(described_class.new(MockProperty, expression)).to be_a(School::Pattern)
+    end
   end
 
   describe "#vars" do
@@ -180,6 +186,12 @@ Spectator.describe School::BinaryPattern do
 
     it "accepts a var as the second argument" do
       expect(described_class.new(MockRelationship, "abc", School::Var.new("n"))).to be_a(School::Pattern)
+    end
+
+    it "compiles" do
+      # ensure `expression` is type `School::Expression+`
+      expression = (rand > 0.5) ? School::Lit.new("e") : School::Var.new("e")
+      expect(described_class.new(MockRelationship, expression, expression)).to be_a(School::Pattern)
     end
   end
 
