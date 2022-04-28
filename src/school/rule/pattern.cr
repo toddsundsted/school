@@ -17,7 +17,11 @@ module School
     # Yields once for each match.
     #
     abstract def match(bindings : Bindings, &block : Bindings -> Nil) : Nil
+  end
 
+  # A pattern.
+  #
+  abstract class Pattern < BasePattern
     # A special pattern that indicates a condition that is satisfied
     # if and only if at least one fact matches the wrapped pattern.
     #
@@ -53,11 +57,6 @@ module School
         yield bindings unless @pattern.match(bindings) { break true }
       end
     end
-  end
-
-  # A pattern.
-  #
-  abstract class Pattern < BasePattern
   end
 
   # Patterns that match against the `Fact` database.
