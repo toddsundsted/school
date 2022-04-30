@@ -95,6 +95,11 @@ module School
       value == @target ? bind(value) : no_match
     end
 
+    # :inherit:
+    def ==(other : self)
+      self.target == other.target
+    end
+
     # Generates an accessor that performs the method call on the
     # literal value.
     #
@@ -121,6 +126,11 @@ module School
     # :inherit:
     def match(value : DomainTypes) : Result
       bind(value)
+    end
+
+    # :inherit:
+    def ==(other : self)
+      self.name == other.name
     end
 
     # Generates an accessor that performs the method call on the
@@ -153,6 +163,11 @@ module School
     end
 
     # :inherit:
+    def ==(other : self)
+      self.target == other.target
+    end
+
+    # :inherit:
     def match(value : DomainTypes) : Result
       result = @target.match(value)
       !result.success ? bind(value, result) : no_match
@@ -176,6 +191,11 @@ module School
       @targets = Array(Lit | Var).new
       targets.each { |target| @targets << Lit.new(target) }
       self.name = name if name
+    end
+
+    # :inherit:
+    def ==(other : self)
+      self.targets == other.targets
     end
 
     # :inherit:

@@ -2,6 +2,20 @@ require "../../spec_helper"
 require "../../../src/school/rule/expression"
 
 Spectator.describe School::Lit do
+  describe "#==" do
+    let(lit) { described_class.new("lit") }
+
+    it "returns true when they are equal" do
+      other = described_class.new("lit")
+      expect(lit == other).to be_true
+    end
+
+    it "returns false when they are not equal" do
+      other = described_class.new("other")
+      expect(lit == other).to be_false
+    end
+  end
+
   describe "#match" do
     let(lit) { described_class.new("lit") }
 
@@ -62,6 +76,20 @@ Spectator.describe School::Var do
     end
   end
 
+  describe "#==" do
+    let(var) { described_class.new("var") }
+
+    it "returns true when they are equal" do
+      other = described_class.new("var")
+      expect(var == other).to be_true
+    end
+
+    it "returns false when they are not equal" do
+      other = described_class.new("other")
+      expect(var == other).to be_false
+    end
+  end
+
   describe "#match" do
     let(var) { described_class.new("var") }
 
@@ -104,6 +132,20 @@ Spectator.describe School::Var do
 end
 
 Spectator.describe School::Not do
+  describe "#==" do
+    subject { described_class.new("var") }
+
+    it "returns true when they are equal" do
+      other = described_class.new("var")
+      expect(subject == other).to be_true
+    end
+
+    it "returns false when they are not equal" do
+      other = described_class.new("other")
+      expect(subject == other).to be_false
+    end
+  end
+
   describe "#match" do
     subject { described_class.new("target") }
 
@@ -154,6 +196,20 @@ Spectator.describe School::Not do
 end
 
 Spectator.describe School::Within do
+  describe "#==" do
+    subject { described_class.new("foo", "bar") }
+
+    it "returns true when they are equal" do
+      other = described_class.new("foo", "bar")
+      expect(subject == other).to be_true
+    end
+
+    it "returns false when they are not equal" do
+      other = described_class.new("other")
+      expect(subject == other).to be_false
+    end
+  end
+
   describe "#match" do
     subject { described_class.new("foo", "bar") }
 
