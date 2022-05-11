@@ -168,6 +168,10 @@ module School
           bindings
         elsif (c = self.c).is_a?(Matcher)
           check_result(c.match(fact.c), bindings)
+        elsif (c = self.c).is_a?(Accessor)
+          if fact.c == c.call(bindings)
+            bindings
+          end
         end
       end
     end
@@ -247,6 +251,18 @@ module School
         elsif (a = self.a).is_a?(Matcher) && (b = self.b).is_a?(Matcher)
           [a.match(fact.a), b.match(fact.b)].reduce(bindings) do |bindings, result|
             check_result(result, bindings) if bindings
+          end
+        elsif fact.a == self.a && (b = self.b).is_a?(Accessor)
+          if fact.b == b.call(bindings)
+            bindings
+          end
+        elsif fact.b == self.b && (a = self.a).is_a?(Accessor)
+          if fact.a == a.call(bindings)
+            bindings
+          end
+        elsif (a = self.a).is_a?(Accessor) && (b = self.b).is_a?(Accessor)
+          if fact.a == a.call(bindings) && fact.b == b.call(bindings)
+            bindings
           end
         end
       end
