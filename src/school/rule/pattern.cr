@@ -75,11 +75,30 @@ module School
       end
     end
 
+    # Matches two values.
+    #
+    # Returns the updated bindings.
+    #
+    protected def match_values(pairs, bindings)
+      pairs.reduce(bindings) do |bindings, args|
+        if bindings
+          that, this = args
+          if that == this
+            bindings
+          elsif this.is_a?(Accessor) && that == this.call(bindings)
+            bindings
+          elsif this.is_a?(Matcher) && (temporary = check_result(this.match(that), bindings))
+            temporary
+          end
+        end
+      end
+    end
+
     # Checks the result for binding conflicts.
     #
     # Returns the merged bindings.
     #
-    protected def check_result(result : Result, bindings : Bindings)
+    protected def check_result(result, bindings)
       if result.success
         if (temporary = result.bindings)
           if temporary.none? { |k, v| bindings.has_key?(k) && bindings[k] != v }
@@ -164,15 +183,7 @@ module School
     # :inherit:
     def match(fact : Fact, bindings : Bindings) : Bindings?
       if fact.is_a?(F)
-        if fact.c == self.c
-          bindings
-        elsif (c = self.c).is_a?(Matcher)
-          check_result(c.match(fact.c), bindings)
-        elsif (c = self.c).is_a?(Accessor)
-          if fact.c == c.call(bindings)
-            bindings
-          end
-        end
+        match_values([{fact.c, self.c}], bindings)
       end
     end
 
@@ -242,29 +253,7 @@ module School
     # :inherit:
     def match(fact : Fact, bindings : Bindings) : Bindings?
       if fact.is_a?(F)
-        if fact.a == self.a && fact.b == self.b
-          bindings
-        elsif fact.a == self.a && (b = self.b).is_a?(Matcher)
-          check_result(b.match(fact.b), bindings)
-        elsif fact.b == self.b && (a = self.a).is_a?(Matcher)
-          check_result(a.match(fact.a), bindings)
-        elsif (a = self.a).is_a?(Matcher) && (b = self.b).is_a?(Matcher)
-          [a.match(fact.a), b.match(fact.b)].reduce(bindings) do |bindings, result|
-            check_result(result, bindings) if bindings
-          end
-        elsif fact.a == self.a && (b = self.b).is_a?(Accessor)
-          if fact.b == b.call(bindings)
-            bindings
-          end
-        elsif fact.b == self.b && (a = self.a).is_a?(Accessor)
-          if fact.a == a.call(bindings)
-            bindings
-          end
-        elsif (a = self.a).is_a?(Accessor) && (b = self.b).is_a?(Accessor)
-          if fact.a == a.call(bindings) && fact.b == b.call(bindings)
-            bindings
-          end
-        end
+        match_values([{fact.a, self.a}, {fact.b, self.b}], bindings)
       end
     end
 
