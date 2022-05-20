@@ -110,17 +110,19 @@ Spectator.describe School::Domain do
       end
     end
 
-    it "does not invoke the action" do
+    let(fact) { MockFact.new }
+
+    let(rule) { MockRule.new("rule n", [] of School::BasePattern, [action]) }
+
+    it "does not invoke an action" do
       expect{subject.run}.not_to change{output.dup}
     end
 
-    it "returns completed status" do
-      expect(subject.run).to eq(School::Domain::Status::Completed)
+    it "returns no matches status" do
+      expect(subject.run).to eq(School::Domain::Status::NoMatches)
     end
 
-    context "when a rule action asserts a fact" do
-      let(fact) { MockFact.new }
-
+    context "when an earlier rule's action asserts a fact that activates a later rule" do
       before_each do
         subject.add(
           School.rule "rule 1" do
@@ -129,23 +131,48 @@ Spectator.describe School::Domain do
         )
         subject.add(
           School.rule "rule 2" do
+            condition MockFact
             action action
           end
         )
       end
 
-      it "returns paused status" do
-        expect(subject.run).to eq(School::Domain::Status::Paused)
+      it "invokes the action" do
+        expect{subject.run}.to change{output.dup}.to([
+          "rule 2:"
+        ])
       end
 
-      it "does not run later rules" do
-        expect{subject.run}.not_to change{output.dup}
+      it "returns completed status" do
+        expect(subject.run).to eq(School::Domain::Status::Completed)
       end
     end
 
-    context "when a rule action retracts a fact" do
-      let(fact) { MockFact.new }
+    context "when a later rule's action asserts a fact that activates an earlier rule" do
+      before_each do
+        subject.add(
+          School.rule "rule 1" do
+            condition MockFact
+            action action
+          end
+        )
+        subject.add(
+          School.rule "rule 2" do
+            action { subject.assert(fact) }
+          end
+        )
+      end
 
+      it "does not invoke the action" do
+        expect{subject.run}.not_to change{output.dup}
+      end
+
+      it "returns completed status" do
+        expect(subject.run).to eq(School::Domain::Status::Completed)
+      end
+    end
+
+    context "when an earlier rule's action retracts a fact that activates a later rule" do
       before_each do
         subject.add(
           School.rule "rule 1" do
@@ -154,69 +181,85 @@ Spectator.describe School::Domain do
         )
         subject.add(
           School.rule "rule 2" do
+            condition MockFact
             action action
           end
         )
         subject.assert(fact)
       end
 
-      it "returns paused status" do
-        expect(subject.run).to eq(School::Domain::Status::Paused)
+      it "does not invoke the action" do
+        expect{subject.run}.not_to change{output.dup}
       end
 
-      it "does not run later rules" do
-        expect{subject.run}.not_to change{output.dup}
+      it "returns completed status" do
+        expect(subject.run).to eq(School::Domain::Status::Completed)
+      end
+    end
+
+    context "when a later rule's action retracts a fact that activates an earlier rule" do
+      before_each do
+        subject.add(
+          School.rule "rule 1" do
+            condition MockFact
+            action action
+          end
+        )
+        subject.add(
+          School.rule "rule 2" do
+            action { subject.retract(fact) }
+          end
+        )
+        subject.assert(fact)
+      end
+
+      it "invokes the action" do
+        expect{subject.run}.to change{output.dup}.to([
+          "rule 1:"
+        ])
+      end
+
+      it "returns completed status" do
+        expect(subject.run).to eq(School::Domain::Status::Completed)
       end
     end
 
     context "when a rule action adds a rule" do
-      let(rule) { MockRule.new("") }
-
       before_each do
         subject.add(
           School.rule "rule 1" do
             action { subject.add(rule) }
           end
         )
-        subject.add(
-          School.rule "rule 2" do
-            action action
-          end
-        )
       end
 
-      it "returns paused status" do
-        expect(subject.run).to eq(School::Domain::Status::Paused)
-      end
-
-      it "does not run later rules" do
+      it "does not invoke the action" do
         expect{subject.run}.not_to change{output.dup}
+      end
+
+      it "returns completed status" do
+        expect(subject.run).to eq(School::Domain::Status::Completed)
       end
     end
 
     context "when a rule action removes a rule" do
-      let(rule) { MockRule.new("") }
-
       before_each do
         subject.add(
           School.rule "rule 1" do
             action { subject.remove(rule) }
           end
         )
-        subject.add(
-          School.rule "rule 2" do
-            action action
-          end
-        )
         subject.add(rule)
       end
 
-      it "returns paused status" do
-        expect(subject.run).to eq(School::Domain::Status::Paused)
+      it "invokes the action" do
+        expect{subject.run}.to change{output.dup}.to([
+          "rule n:"
+        ])
       end
 
-      it "does not run later rules" do
-        expect{subject.run}.not_to change{output.dup}
+      it "returns completed status" do
+        expect(subject.run).to eq(School::Domain::Status::Completed)
       end
     end
 

@@ -80,23 +80,28 @@ module School
     end
 
     private def match_all
-      Array(Match).new.tap do |matches|
-        rules.each do |rule|
+      @matches = false
+      rules.each do |rule|
+        Array(Match).new.tap do |matches|
           {% if flag?(:"school:metrics") %}
             Metrics.count_rule
           {% end %}
           each_match(rule.conditions) do |bindings|
             matches << Match.new(rule, bindings)
           end
+        end.each do |match|
+          @matches = true
+          yield match
         end
       end
+      @matches ? Status::Completed : Status::NoMatches
     end
 
     # The status of the run.
     #
     enum Status
+      NoMatches
       Completed
-      Paused
     end
 
     # Runs the rules engine.
@@ -104,16 +109,17 @@ module School
     # First, matches rules' conditions to facts, and then invokes
     # rules' actions for each distinct match.
     #
+    # Rules are matched in order of their definition. Within a run,
+    # earlier rules can influence later rules (by asserting or
+    # retracting facts). Later rules cannot influence earlier rules.
+    #
     def run
       {% if flag?(:"school:metrics") %}
         Metrics.count_run
       {% end %}
-      @changed = false
-      match_all.each do |match|
+      match_all do |match|
         match.rule.call(match.bindings)
-        break if @changed
       end
-      @changed ? Status::Paused : Status::Completed
     end
   end
 end
