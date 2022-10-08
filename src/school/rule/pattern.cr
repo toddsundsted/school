@@ -2,6 +2,23 @@ require "./expression"
 require "../fact"
 
 module School
+  # Rule evaluation tracing utility class.
+  #
+  class Trace
+    def initialize(@level = 1)
+    end
+
+    def condition(pattern : BasePattern)
+    end
+
+    def fact(fact, before : Bindings, after : Bindings)
+    end
+
+    def nest
+      yield self.class.new(@level + 1)
+    end
+  end
+
   # A pattern.
   #
   # Prefer `Pattern` over `BasePattern` since classes derived from

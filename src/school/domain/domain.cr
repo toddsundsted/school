@@ -4,6 +4,19 @@ require "../rule"
 {% end %}
 
 module School
+  # Rule evaluation tracing utility class.
+  #
+  class Trace
+    def rule(rule : Rule)
+    end
+
+    def succeed
+    end
+
+    def fail
+    end
+  end
+
   # A domain is a collection of facts.
   #
   class Domain
