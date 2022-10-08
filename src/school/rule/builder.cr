@@ -10,7 +10,7 @@ module School
       @conditions = [] of BasePattern
       @actions = [] of Action
 
-      def initialize(@name : String)
+      def initialize(@name : String, *, @trace : Bool = false)
       end
 
       private def l(m)
@@ -384,15 +384,15 @@ module School
       # memoized).
       #
       def build
-        @rule ||= Rule.new(@name, @conditions, @actions)
+        @rule ||= Rule.new(@name, @conditions, @actions, trace: @trace)
       end
     end
   end
 
   # Presents a DSL for defining rules.
   #
-  def self.rule(name, &block)
-    builder = Rule::Builder.new(name)
+  def self.rule(name, *, trace : Bool = false, &block)
+    builder = Rule::Builder.new(name, trace: trace)
     with builder yield
     builder.build
   end

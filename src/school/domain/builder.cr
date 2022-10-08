@@ -41,8 +41,8 @@ module School
         self
       end
 
-      def rule(name, &block)
-        builder = Rule::Builder.new(name)
+      def rule(name, *, trace : Bool = false, &block)
+        builder = Rule::Builder.new(name, trace: trace)
         with builder yield
         @rules << builder.build
         self

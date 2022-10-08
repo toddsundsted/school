@@ -13,10 +13,10 @@ module School
       initialize(name, [] of BasePattern, [] of Action)
     end
 
-    def initialize(@name : String, @conditions : Array(BasePattern), @actions : Array(Action))
+    def initialize(@name : String, @conditions : Array(BasePattern), @actions : Array(Action), *, @trace : Bool = false)
     end
 
-    getter name
+    getter name, trace
 
     def conditions
       @conditions.dup
