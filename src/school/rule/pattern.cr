@@ -33,7 +33,7 @@ module School
     #
     # Yields once for each match.
     #
-    abstract def match(bindings : Bindings, &block : Bindings -> Nil) : Nil
+    abstract def match(bindings : Bindings, trace : Trace? = nil, &block : Bindings -> Nil) : Nil
   end
 
   # A pattern.
@@ -52,7 +52,8 @@ module School
       end
 
       # :inherit:
-      def match(bindings : Bindings, &block : Bindings -> Nil) : Nil
+      def match(bindings : Bindings, trace : Trace? = nil, &block : Bindings -> Nil) : Nil
+        trace.condition(self) if trace
         yield bindings if @pattern.match(bindings) { break true }
       end
     end
@@ -70,7 +71,8 @@ module School
       end
 
       # :inherit:
-      def match(bindings : Bindings, &block : Bindings -> Nil) : Nil
+      def match(bindings : Bindings, trace : Trace? = nil, &block : Bindings -> Nil) : Nil
+        trace.condition(self) if trace
         yield bindings unless @pattern.match(bindings) { break true }
       end
     end
@@ -84,9 +86,11 @@ module School
     abstract def match(fact : Fact, bindings : Bindings) : Bindings?
 
     # :inherit:
-    def match(bindings : Bindings, &block : Bindings -> Nil) : Nil
+    def match(bindings : Bindings, trace : Trace? = nil, &block : Bindings -> Nil) : Nil
+      trace.condition(self) if trace
       Fact.facts.each do |fact|
         if (temporary = match(fact, bindings))
+          trace.fact(fact, bindings, temporary) if trace
           yield temporary
         end
       end
@@ -323,7 +327,7 @@ module School
     end
 
     # :inherit:
-    def match(bindings : Bindings, &block : Bindings -> Nil) : Nil
+    def match(bindings : Bindings, trace : Trace? = nil, &block : Bindings -> Nil) : Nil
       if (temporary = @proc.call(bindings))
         if temporary.none? { |k, v| bindings.has_key?(k) && bindings[k] != v }
           yield bindings.merge(temporary)

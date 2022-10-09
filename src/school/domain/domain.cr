@@ -79,15 +79,32 @@ module School
 
     private record Match, rule : Rule, bindings : Bindings
 
-    private def each_match(conditions : Array(BasePattern), bindings = Bindings.new, &block : Bindings ->)
+    private def each_match(conditions : Array(BasePattern), bindings = Bindings.new, trace : Trace? = nil, &block : Bindings ->)
       if (condition = conditions.first?)
         {% if flag?(:"school:metrics") %}
           Metrics.count_condition
         {% end %}
-        condition.match(bindings) do |temporary|
-          each_match(conditions[1..-1], temporary, &block) if temporary
+        any_matches = false
+        condition.match(bindings, trace) do |temporary|
+          any_matches = true
+          if temporary
+            if trace
+              trace.nest do |trace|
+                each_match(conditions[1..-1], temporary, trace, &block)
+              end
+            else
+              each_match(conditions[1..-1], temporary, &block)
+            end
+          end
+        end
+        unless any_matches
+          # matching fails if any condition in this branch fails to match any facts
+          trace.fail if trace
+          return
         end
       else
+        # matching succeeds if there are no more conditions left to check
+        trace.succeed if trace
         block.call(bindings)
       end
     end
@@ -95,11 +112,15 @@ module School
     private def match_all
       @matches = false
       rules.each do |rule|
+        if rule.trace
+          trace = Trace.new
+          trace.rule(rule)
+        end
         Array(Match).new.tap do |matches|
           {% if flag?(:"school:metrics") %}
             Metrics.count_rule
           {% end %}
-          each_match(rule.conditions) do |bindings|
+          each_match(rule.conditions, trace: trace) do |bindings|
             matches << Match.new(rule, bindings)
           end
         end.each do |match|
