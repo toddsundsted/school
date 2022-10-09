@@ -34,6 +34,12 @@ module School
     # Yields once for each match.
     #
     abstract def match(bindings : Bindings, trace : Trace? = nil, &block : Bindings -> Nil) : Nil
+
+    # Appends a short `String` representation of this object.
+    #
+    def to_s(io : IO)
+      self.class.to_s(io)
+    end
   end
 
   # A pattern.
@@ -56,6 +62,12 @@ module School
         trace.condition(self) if trace
         yield bindings if @pattern.match(bindings) { break true }
       end
+
+      # :inherit:
+      def to_s(io : IO)
+        io << "Any "
+        @pattern.class.to_s(io)
+      end
     end
 
     # A special pattern that indicates a condition that is satisfied
@@ -74,6 +86,12 @@ module School
       def match(bindings : Bindings, trace : Trace? = nil, &block : Bindings -> Nil) : Nil
         trace.condition(self) if trace
         yield bindings unless @pattern.match(bindings) { break true }
+      end
+
+      # :inherit:
+      def to_s(io : IO)
+        io << "None "
+        @pattern.class.to_s(io)
       end
     end
   end

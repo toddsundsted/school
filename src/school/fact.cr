@@ -33,6 +33,12 @@ module School
       @@facts.delete(fact) || raise ArgumentError.new("already retracted")
       fact
     end
+
+    # Appends a short `String` representation of this object.
+    #
+    def to_s(io : IO)
+      self.class.to_s(io)
+    end
   end
 
   # A fact that asserts a property.
