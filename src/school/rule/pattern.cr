@@ -5,17 +5,52 @@ module School
   # Rule evaluation tracing utility class.
   #
   class Trace
-    def initialize(@level = 1)
+    def initialize
+      initialize(nil)
+    end
+
+    protected def initialize(@parent : Trace?)
     end
 
     def condition(pattern : BasePattern)
+      @pattern = "Condition #{pattern}"
     end
 
     def fact(fact, before : Bindings, after : Bindings)
+      @fact = "Match #{fact} bindings: #{bindings(before, after)}"
+    end
+
+    private def bindings(b, a)
+      String::Builder.build do |sb|
+        unless (t = a.reject(b.keys)).empty?
+          pp(sb, t)
+          sb << " "
+        end
+        sb << "["
+        pp(sb, b)
+        sb << "]"
+      end
+    end
+
+    private def pp(sb, h)
+      h.each.with_index do |(k, v), i|
+        case v
+        when String
+          sb << " " if i > 0
+          k.to_s(sb)
+          sb << "="
+          v.inspect(sb)
+        else
+          sb << " " if i > 0
+          k.to_s(sb)
+          sb << "="
+          v.to_s(sb)
+        end
+      end
     end
 
     def nest
-      yield self.class.new(@level + 1)
+      yield self.class.new(self)
     end
   end
 

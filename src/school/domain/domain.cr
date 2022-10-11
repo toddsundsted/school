@@ -7,13 +7,24 @@ module School
   # Rule evaluation tracing utility class.
   #
   class Trace
-    def rule(rule : Rule)
+    def rule(@rule : Rule)
+      @rule = "Rule #{rule.name}"
     end
 
     def succeed
+      backtrace "<success>"
     end
 
     def fail
+      backtrace "<no matches>"
+    end
+
+    protected def backtrace(message = nil)
+      @parent.try(&.backtrace)
+      puts @rule if @rule
+      puts "  #{@pattern}" if @pattern
+      puts "    #{@fact}" if @fact
+      puts message if message
     end
   end
 
