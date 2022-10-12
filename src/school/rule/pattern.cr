@@ -16,23 +16,36 @@ module School
       @pattern = "Condition #{pattern}"
     end
 
+    @fact : String?
+
     def fact(fact, before : Bindings, after : Bindings)
-      @fact = "Match #{fact} bindings: #{bindings(before, after)}"
+      @fact = String::Builder.build do |sb|
+        sb << "Match "
+        fact.to_s(sb)
+        sb << ", bindings: "
+        diff_bindings(sb, before, after)
+      end.to_s
     end
 
-    private def bindings(b, a)
-      String::Builder.build do |sb|
-        unless (t = a.reject(b.keys)).empty?
-          pp(sb, t)
-          sb << " "
-        end
-        sb << "["
-        pp(sb, b)
+    def match(bindings : Bindings)
+      @fact = String::Builder.build do |sb|
+        sb << "Match bindings: ["
+        pp_bindings(sb, bindings)
         sb << "]"
-      end
+      end.to_s
     end
 
-    private def pp(sb, h)
+    private def diff_bindings(sb, b, a)
+      unless (d = a.reject(b.keys)).empty?
+        pp_bindings(sb, d)
+        sb << " "
+      end
+      sb << "["
+      pp_bindings(sb, b)
+      sb << "]"
+    end
+
+    private def pp_bindings(sb, h)
       h.each.with_index do |(k, v), i|
         case v
         when String
@@ -95,7 +108,10 @@ module School
       # :inherit:
       def match(bindings : Bindings, trace : Trace? = nil, &block : Bindings -> Nil) : Nil
         trace.condition(self) if trace
-        yield bindings if @pattern.match(bindings) { break true }
+        if @pattern.match(bindings) { break true }
+          trace.match(bindings) if trace
+          yield bindings
+        end
       end
 
       # :inherit:
@@ -120,7 +136,10 @@ module School
       # :inherit:
       def match(bindings : Bindings, trace : Trace? = nil, &block : Bindings -> Nil) : Nil
         trace.condition(self) if trace
-        yield bindings unless @pattern.match(bindings) { break true }
+        unless @pattern.match(bindings) { break true }
+          trace.match(bindings) if trace
+          yield bindings
+        end
       end
 
       # :inherit:
