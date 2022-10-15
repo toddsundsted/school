@@ -47,16 +47,13 @@ module School
 
     private def pp_bindings(sb, h)
       h.each.with_index do |(k, v), i|
+        sb << " " if i > 0
+        k.to_s(sb)
+        sb << "="
         case v
         when String
-          sb << " " if i > 0
-          k.to_s(sb)
-          sb << "="
           v.inspect(sb)
         else
-          sb << " " if i > 0
-          k.to_s(sb)
-          sb << "="
           v.to_s(sb)
         end
       end
