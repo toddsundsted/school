@@ -11,20 +11,37 @@ module School
       @rule = "Rule #{rule.name}"
     end
 
+    @successes = [] of String
+
     def succeed
-      backtrace "<success>"
+      root.@successes << backtrace.join("\n")
     end
+
+    @failures = [] of String
 
     def fail
-      backtrace "<no matches>"
+      root.@failures << (backtrace << "    <no match>").join("\n")
     end
 
-    protected def backtrace(message = nil)
-      @parent.try(&.backtrace)
-      puts @rule if @rule
-      puts "  #{@pattern}" if @pattern
-      puts "    #{@fact}" if @fact
-      puts message if message
+    protected def backtrace(arr = [] of String)
+      @parent.try(&.backtrace(arr))
+      arr << @rule.to_s if @rule
+      arr << "  #{@pattern}" if @pattern
+      arr << "    #{@fact}" if @fact
+      arr
+    end
+
+    private def root
+      this = self
+      while (parent = this.@parent)
+        this = parent
+      end
+      this
+    end
+
+    def dump
+      @successes.each { |success| puts success ; puts "SUCCESS" }
+      @failures.each { |failure| puts failure }
     end
   end
 
@@ -137,6 +154,9 @@ module School
         end.each do |match|
           @matches = true
           yield match
+        end
+        if trace
+          trace.dump
         end
       end
       @matches ? Status::Completed : Status::NoMatches
