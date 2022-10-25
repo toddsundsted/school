@@ -1,48 +1,19 @@
 require "../rule"
+require "../utils/trace"
 {% if flag?(:"school:metrics") %}
   require "./metrics"
 {% end %}
 
 module School
-  # Rule evaluation tracing utility class.
-  #
-  class Trace
-    def rule(@rule : Rule)
+  class TraceRoot < Trace
+    def rule(rule : Rule)
       @rule = "Rule #{rule.name}"
     end
 
-    @successes = [] of String
-
-    def succeed
-      root.@successes << backtrace.join("\n")
+    protected def render(ar = [] of String)
+      ar << @rule.to_s if @rule
     end
 
-    @failures = [] of String
-
-    def fail
-      root.@failures << (backtrace << "    <no match>").join("\n")
-    end
-
-    protected def backtrace(arr = [] of String)
-      @parent.try(&.backtrace(arr))
-      arr << @rule.to_s if @rule
-      arr << "  #{@pattern}" if @pattern
-      arr << "    #{@fact}" if @fact
-      arr
-    end
-
-    private def root
-      this = self
-      while (parent = this.@parent)
-        this = parent
-      end
-      this
-    end
-
-    def dump
-      @successes.each { |success| puts success ; puts "SUCCESS" }
-      @failures.each { |failure| puts failure }
-    end
   end
 
   # A domain is a collection of facts.
@@ -107,7 +78,7 @@ module School
 
     private record Match, rule : Rule, bindings : Bindings
 
-    private def each_match(conditions : Array(BasePattern), bindings = Bindings.new, trace : Trace? = nil, &block : Bindings ->)
+    private def each_match(conditions : Array(BasePattern), bindings = Bindings.new, trace : TraceNode? = nil, &block : Bindings ->)
       if (condition = conditions.first?)
         {% if flag?(:"school:metrics") %}
           Metrics.count_condition
@@ -141,22 +112,23 @@ module School
       @matches = false
       rules.each do |rule|
         if rule.trace
-          trace = Trace.new
-          trace.rule(rule)
+          root = Trace.new
+          root.rule(rule)
+          node = root.nest
         end
         Array(Match).new.tap do |matches|
           {% if flag?(:"school:metrics") %}
             Metrics.count_rule
           {% end %}
-          each_match(rule.conditions, trace: trace) do |bindings|
+          each_match(rule.conditions, trace: node) do |bindings|
             matches << Match.new(rule, bindings)
           end
         end.each do |match|
           @matches = true
           yield match
         end
-        if trace
-          trace.dump
+        if root
+          root.dump
         end
       end
       @matches ? Status::Completed : Status::NoMatches
