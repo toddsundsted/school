@@ -39,7 +39,7 @@ module School
     # Dumps the trace.
     #
     def dump(io = STDOUT)
-      successes.each { |success| io.puts "SUCCESS" ; io.puts success }
+      successes.each { |success| io.puts success }
       failures.each { |failure| io.puts failure }
     end
 
@@ -71,13 +71,13 @@ module School
     # Indicates a successful match.
     #
     def succeed
-      root.successes << backtrace.join("\n")
+      root.successes << (["SUCCESS"] + backtrace).join("\n")
     end
 
     # Indicates a failed match.
     #
     def fail
-      root.failures << backtrace.join("\n")
+      root.failures << (backtrace + ["    <no match>"]).join("\n")
     end
 
     def nest

@@ -65,7 +65,7 @@ Spectator.describe School::TraceNode do
     it "renders the graph" do
       subject.fail
       str = String.build { |io| root.dump(io) }
-      expect(str).to eq("ROOT\nNODE\n")
+      expect(str).to eq("ROOT\nNODE\n    <no match>\n")
     end
   end
 end
