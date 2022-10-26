@@ -112,7 +112,7 @@ module School
       @matches = false
       rules.each do |rule|
         if rule.trace
-          root = Trace.new
+          root = Trace.root
           root.rule(rule)
           node = root.nest
         end

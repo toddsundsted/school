@@ -14,15 +14,15 @@ class School::TraceNode < School::Trace
 end
 
 Spectator.describe School::Trace do
-  describe ".new" do
+  describe ".root" do
     it "returns an instance of the trace root class" do
-      expect(described_class.new).to be_a(School::TraceRoot)
+      expect(described_class.root).to be_a(School::TraceRoot)
     end
   end
 end
 
 Spectator.describe School::TraceRoot do
-  subject { School::Trace.new }
+  subject { School::Trace.root }
 
   pre_condition { expect(subject).to be_a(School::TraceRoot) }
 
@@ -41,7 +41,7 @@ Spectator.describe School::TraceRoot do
 end
 
 Spectator.describe School::TraceNode do
-  let(root) { School::Trace.new }
+  let(root) { School::Trace.root }
 
   subject { root.nest }
 

@@ -2,9 +2,12 @@ module School
   # Rule evaluation tracing utility class.
   #
   abstract class Trace
+    private def initialize
+    end
+
     # Instantiates a trace root.
     #
-    def self.new
+    def self.root
       TraceRoot.new
     end
 
