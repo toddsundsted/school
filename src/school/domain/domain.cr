@@ -127,6 +127,7 @@ module School
           @matches = true
           yield match
         end
+      ensure
         if root
           root.dump
         end
