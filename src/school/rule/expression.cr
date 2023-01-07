@@ -187,7 +187,19 @@ module School
       self.name = name if name
     end
 
+    def initialize(targets : Array(Lit | Var), name : String? = nil)
+      @targets = Array(Lit | Var).new
+      targets.each { |target| @targets << target }
+      self.name = name if name
+    end
+
     def initialize(*targets : DomainTypes, name : String? = nil)
+      @targets = Array(Lit | Var).new
+      targets.each { |target| @targets << Lit.new(target) }
+      self.name = name if name
+    end
+
+    def initialize(targets : Array(DomainTypes), name : String? = nil)
       @targets = Array(Lit | Var).new
       targets.each { |target| @targets << Lit.new(target) }
       self.name = name if name

@@ -196,6 +196,24 @@ Spectator.describe School::Not do
 end
 
 Spectator.describe School::Within do
+  describe ".new" do
+    it "takes a variable number of arguments" do
+      expect(described_class.new(School::Lit.new(1), School::Lit.new(2))).to be_a(School::Within)
+    end
+
+    it "takes an array of arguments" do
+      expect(described_class.new([School::Lit.new(1), School::Lit.new(2)])).to be_a(School::Within)
+    end
+
+    it "takes a variable number of arguments" do
+      expect(described_class.new(1, 2, 3)).to be_a(School::Within)
+    end
+
+    it "takes an array of arguments" do
+      expect(described_class.new([1, 2, 3])).to be_a(School::Within)
+    end
+  end
+
   describe "#==" do
     subject { described_class.new("foo", "bar") }
 
