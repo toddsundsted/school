@@ -79,9 +79,15 @@ module School
     end
   end
 
+  # Tags an atomic expression.
+  #
+  module Atomic
+  end
+
   # A literal.
   #
   class Lit < Expression
+    include Atomic
     include Matcher
 
     getter target
@@ -117,6 +123,7 @@ module School
   # A variable.
   #
   class Var < Expression
+    include Atomic
     include Matcher
 
     def initialize(name : String)
@@ -181,26 +188,26 @@ module School
 
     getter targets
 
-    def initialize(*targets : Lit | Var, name : String? = nil)
-      @targets = Array(Lit | Var).new
+    def initialize(*targets : Atomic, name : String? = nil)
+      @targets = Array(Atomic).new
       targets.each { |target| @targets << target }
       self.name = name if name
     end
 
-    def initialize(targets : Array(Lit | Var), name : String? = nil)
-      @targets = Array(Lit | Var).new
+    def initialize(targets : Array(Atomic), name : String? = nil)
+      @targets = Array(Atomic).new
       targets.each { |target| @targets << target }
       self.name = name if name
     end
 
     def initialize(*targets : DomainTypes, name : String? = nil)
-      @targets = Array(Lit | Var).new
+      @targets = Array(Atomic).new
       targets.each { |target| @targets << Lit.new(target) }
       self.name = name if name
     end
 
     def initialize(targets : Array(DomainTypes), name : String? = nil)
-      @targets = Array(Lit | Var).new
+      @targets = Array(Atomic).new
       targets.each { |target| @targets << Lit.new(target) }
       self.name = name if name
     end
