@@ -64,11 +64,18 @@ module School
     end
   end
 
+  # Tags an atomic expression.
+  #
+  module Atomic
+  end
+
   # An accessor.
   #
   # Wraps a method call or other operation, implemented as a block.
   #
   class Accessor < Expression
+    include Atomic
+
     def initialize(&@block : Bindings -> DomainTypes?)
     end
 
@@ -77,11 +84,6 @@ module School
     def call(bindings : Bindings) : DomainTypes?
       @block.call(bindings)
     end
-  end
-
-  # Tags an atomic expression.
-  #
-  module Atomic
   end
 
   # A literal.
