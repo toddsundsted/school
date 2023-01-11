@@ -190,13 +190,13 @@ module School
 
     def initialize(*targets : Atomic, name : String? = nil)
       @targets = Array(Atomic).new
-      targets.each { |target| @targets << target }
+      targets.each { |target| @targets << target.as(Atomic) }
       self.name = name if name
     end
 
     def initialize(targets : Array(Atomic), name : String? = nil)
       @targets = Array(Atomic).new
-      targets.each { |target| @targets << target }
+      targets.each { |target| @targets << target.as(Atomic) }
       self.name = name if name
     end
 
