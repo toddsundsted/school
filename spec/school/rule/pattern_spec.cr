@@ -4,6 +4,10 @@ require "../../../src/school/rule/pattern"
 Spectator.describe School::NullaryPattern do
   before_each { School::Fact.clear! }
 
+  def context(bindings = School::Bindings.new)
+    School::Context.new(bindings, School::Fact.facts)
+  end
+
   describe ".new" do
     it "instantiates a new pattern" do
       expect(School::NullaryPattern(MockFact).new).to be_a(School::Pattern)
@@ -39,11 +43,9 @@ Spectator.describe School::NullaryPattern do
 
     let(proc) { -> { output << "called" } }
 
-    let(bindings) { School::Bindings.new }
-
     it "yields once for each match" do
       [MockProperty.new(123), MockFact.new, MockProperty.new(890)].each { |fact| School::Fact.assert(fact) }
-      expect{described_class.new(MockFact).match(School::Context.new(bindings, School::Fact.facts), &proc)}.to change{output.dup}.to(["called"])
+      expect{described_class.new(MockFact).match(context, &proc)}.to change{output.dup}.to(["called"])
     end
   end
 
@@ -345,6 +347,10 @@ end
 Spectator.describe School::Pattern::Any do
   before_each { School::Fact.clear! }
 
+  def context(bindings = School::Bindings.new)
+    School::Context.new(bindings, School::Fact.facts)
+  end
+
   describe ".new" do
     it "instantiates a new pattern by wrapping a pattern" do
       expect(described_class.new(School::NullaryPattern.new(MockFact))).to be_a(School::BasePattern)
@@ -364,11 +370,9 @@ Spectator.describe School::Pattern::Any do
 
     let(proc) { -> { output << "called" } }
 
-    let(bindings) { School::Bindings.new }
-
     it "yields once if any match" do
       [MockProperty.new(123), MockFact.new, MockProperty.new(890)].each { |fact| School::Fact.assert(fact) }
-      expect{described_class.new(School::UnaryPattern.new(MockProperty, 123)).match(School::Context.new(bindings, School::Fact.facts), &proc)}.to change{output.dup}.to(["called"])
+      expect{described_class.new(School::UnaryPattern.new(MockProperty, 123)).match(context, &proc)}.to change{output.dup}.to(["called"])
     end
   end
 end
@@ -376,6 +380,10 @@ end
 Spectator.describe School::Pattern::None do
   before_each { School::Fact.clear! }
 
+  def context(bindings = School::Bindings.new)
+    School::Context.new(bindings, School::Fact.facts)
+  end
+
   describe ".new" do
     it "instantiates a new pattern by wrapping a pattern" do
       expect(described_class.new(School::NullaryPattern.new(MockFact))).to be_a(School::BasePattern)
@@ -395,16 +403,18 @@ Spectator.describe School::Pattern::None do
 
     let(proc) { -> { output << "called" } }
 
-    let(bindings) { School::Bindings.new }
-
     it "yields once if none match" do
       [MockProperty.new(123), MockFact.new, MockProperty.new(890)].each { |fact| School::Fact.assert(fact) }
-      expect{described_class.new(School::UnaryPattern.new(MockProperty, 456)).match(School::Context.new(bindings, School::Fact.facts), &proc)}.to change{output.dup}.to(["called"])
+      expect{described_class.new(School::UnaryPattern.new(MockProperty, 456)).match(context, &proc)}.to change{output.dup}.to(["called"])
     end
   end
 end
 
 Spectator.describe School::ProcPattern do
+  def context(bindings = School::Bindings.new)
+    School::Context.new(bindings, School::Fact.facts)
+  end
+
   describe ".new" do
     it "instantiates a new pattern" do
       proc = School::ProcPattern::ProcType.new {}
@@ -417,31 +427,29 @@ Spectator.describe School::ProcPattern do
 
     let(proc) { -> (bindings : School::Bindings) { output << bindings} }
 
-    let(bindings) { School::Bindings.new }
-
     it "does not yield if condition returns nil" do
       condition = School::ProcPattern::ProcType.new { nil }
-      expect{described_class.new(condition).match(School::Context.new(bindings, School::Fact.facts), &proc)}.not_to change{output.dup}
+      expect{described_class.new(condition).match(context, &proc)}.not_to change{output.dup}
     end
 
     it "yields if the condition returns bindings" do
       condition = School::ProcPattern::ProcType.new { School::Bindings{"foo" => "bar"} }
-      expect{described_class.new(condition).match(School::Context.new(bindings, School::Fact.facts), &proc)}.to change{output.dup}.to([School::Bindings{"foo" => "bar"}])
+      expect{described_class.new(condition).match(context, &proc)}.to change{output.dup}.to([School::Bindings{"foo" => "bar"}])
     end
 
     it "yields and merges bindings if the condition returns bindings" do
       condition = School::ProcPattern::ProcType.new { School::Bindings{"foo" => "bar"} }
-      expect{described_class.new(condition).match(School::Context.new(School::Bindings{"abc" => "xyz"}, School::Fact.facts), &proc)}.to change{output.dup}.to([School::Bindings{"abc" => "xyz", "foo" => "bar"}])
+      expect{described_class.new(condition).match(context(School::Bindings{"abc" => "xyz"}), &proc)}.to change{output.dup}.to([School::Bindings{"abc" => "xyz", "foo" => "bar"}])
     end
 
     it "yields and returns bindings if bindings match" do
       condition = School::ProcPattern::ProcType.new { School::Bindings{"foo" => "bar"} }
-      expect{described_class.new(condition).match(School::Context.new(School::Bindings{"foo" => "bar"}, School::Fact.facts), &proc)}.to change{output.dup}.to([School::Bindings{"foo" => "bar"}])
+      expect{described_class.new(condition).match(context(School::Bindings{"foo" => "bar"}), &proc)}.to change{output.dup}.to([School::Bindings{"foo" => "bar"}])
     end
 
     it "does not yield if bindings conflict" do
       condition = School::ProcPattern::ProcType.new { School::Bindings{"foo" => "bar"} }
-      expect{described_class.new(condition).match(School::Context.new(School::Bindings{"foo" => "baz"}, School::Fact.facts), &proc)}.not_to change{output.dup}
+      expect{described_class.new(condition).match(context(School::Bindings{"foo" => "baz"}), &proc)}.not_to change{output.dup}
     end
   end
 end
