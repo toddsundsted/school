@@ -5,7 +5,7 @@ require "../utils/trace"
 module School
   # Context for pattern matching operations.
   #
-  record Context, bindings : Bindings
+  record Context, bindings : Bindings, facts : Set(Fact)
 
   class TraceNode < Trace
     def condition(pattern : BasePattern)
@@ -154,7 +154,7 @@ module School
     # :inherit:
     def match(context : Context, trace : TraceNode? = nil, &block : Bindings -> Nil) : Nil
       trace.condition(self) if trace
-      Fact.facts.each do |fact|
+      context.facts.each do |fact|
         if (temporary = match(fact, context.bindings))
           trace.fact(fact, context.bindings, temporary) if trace
           yield temporary
