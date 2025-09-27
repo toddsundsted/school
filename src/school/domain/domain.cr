@@ -84,7 +84,8 @@ module School
           Metrics.count_condition
         {% end %}
         any_matches = false
-        condition.match(bindings, trace) do |temporary|
+        context = Context.new(bindings)
+        condition.match(context, trace) do |temporary|
           any_matches = true
           if temporary
             if trace

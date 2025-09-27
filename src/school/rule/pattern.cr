@@ -3,6 +3,10 @@ require "../fact"
 require "../utils/trace"
 
 module School
+  # Context for pattern matching operations.
+  #
+  record Context, bindings : Bindings
+
   class TraceNode < Trace
     def condition(pattern : BasePattern)
       @pattern = "Condition #{pattern}"
@@ -71,7 +75,7 @@ module School
     #
     # Yields once for each match.
     #
-    abstract def match(bindings : Bindings, trace : TraceNode? = nil, &block : Bindings -> Nil) : Nil
+    abstract def match(context : Context, trace : TraceNode? = nil, &block : Bindings -> Nil) : Nil
 
     # Appends a short `String` representation of this object.
     #
@@ -96,11 +100,11 @@ module School
       end
 
       # :inherit:
-      def match(bindings : Bindings, trace : TraceNode? = nil, &block : Bindings -> Nil) : Nil
+      def match(context : Context, trace : TraceNode? = nil, &block : Bindings -> Nil) : Nil
         trace.condition(self) if trace
-        if @pattern.match(bindings) { break true }
-          trace.match(bindings) if trace
-          yield bindings
+        if @pattern.match(context) { break true }
+          trace.match(context.bindings) if trace
+          yield context.bindings
         end
       end
 
@@ -124,11 +128,11 @@ module School
       end
 
       # :inherit:
-      def match(bindings : Bindings, trace : TraceNode? = nil, &block : Bindings -> Nil) : Nil
+      def match(context : Context, trace : TraceNode? = nil, &block : Bindings -> Nil) : Nil
         trace.condition(self) if trace
-        unless @pattern.match(bindings) { break true }
-          trace.match(bindings) if trace
-          yield bindings
+        unless @pattern.match(context) { break true }
+          trace.match(context.bindings) if trace
+          yield context.bindings
         end
       end
 
@@ -148,11 +152,11 @@ module School
     abstract def match(fact : Fact, bindings : Bindings) : Bindings?
 
     # :inherit:
-    def match(bindings : Bindings, trace : TraceNode? = nil, &block : Bindings -> Nil) : Nil
+    def match(context : Context, trace : TraceNode? = nil, &block : Bindings -> Nil) : Nil
       trace.condition(self) if trace
       Fact.facts.each do |fact|
-        if (temporary = match(fact, bindings))
-          trace.fact(fact, bindings, temporary) if trace
+        if (temporary = match(fact, context.bindings))
+          trace.fact(fact, context.bindings, temporary) if trace
           yield temporary
         end
       end
@@ -389,10 +393,10 @@ module School
     end
 
     # :inherit:
-    def match(bindings : Bindings, trace : TraceNode? = nil, &block : Bindings -> Nil) : Nil
-      if (temporary = @proc.call(bindings))
-        if temporary.none? { |k, v| bindings.has_key?(k) && bindings[k] != v }
-          yield bindings.merge(temporary)
+    def match(context : Context, trace : TraceNode? = nil, &block : Bindings -> Nil) : Nil
+      if (temporary = @proc.call(context.bindings))
+        if temporary.none? { |k, v| context.bindings.has_key?(k) && context.bindings[k] != v }
+          yield context.bindings.merge(temporary)
         end
       end
     end
