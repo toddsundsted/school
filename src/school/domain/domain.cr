@@ -20,25 +20,28 @@ module School
   #
   class Domain
     @changed = false
+    @facts = Set(Fact).new
 
     # Returns the facts in the domain.
     #
     def facts
-      Fact.facts
+      @facts.dup
     end
 
     # Adds a fact to the domain.
     #
     def assert(fact : Fact) : Fact
       @changed = true
-      Fact.assert(fact)
+      @facts.add?(fact) || raise ArgumentError.new("already asserted")
+      fact
     end
 
     # Removes a fact from the domain.
     #
     def retract(fact : Fact) : Fact
       @changed = true
-      Fact.retract(fact)
+      @facts.delete(fact) || raise ArgumentError.new("already retracted")
+      fact
     end
 
     # Returns the rules in the domain.
@@ -73,7 +76,7 @@ module School
     #
     # Used internally by the domain builder.
     #
-    protected def initialize(@rules : Set(Rule))
+    protected def initialize(@rules : Set(Rule), @facts : Set(Fact) = Set(Fact).new)
     end
 
     private record Match, rule : Rule, bindings : Bindings

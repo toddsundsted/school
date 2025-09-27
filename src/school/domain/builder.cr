@@ -56,8 +56,7 @@ module School
       # Builds the domain.
       #
       def build
-        @facts.each { |fact| Fact.assert(fact) }
-        Domain.new(@rules)
+        Domain.new(@rules, @facts)
       end
     end
   end
