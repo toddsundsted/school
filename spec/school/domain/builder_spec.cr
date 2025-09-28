@@ -2,7 +2,6 @@ require "../../spec_helper"
 require "../../../src/school/domain/builder"
 
 Spectator.describe School::Domain::Builder do
-  before_each { School::Fact.clear! }
 
   describe ".new" do
     it "builds a domain" do

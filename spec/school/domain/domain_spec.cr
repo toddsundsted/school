@@ -3,8 +3,6 @@ require "../../../src/school/domain"
 require "../../../src/school/rule/builder"
 
 Spectator.describe School::Domain do
-  before_each { School::Fact.clear! }
-
   describe ".new" do
     it "instantiates a new domain" do
       expect(described_class.new).to be_a(School::Domain)
