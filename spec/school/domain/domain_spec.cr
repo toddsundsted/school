@@ -1176,4 +1176,35 @@ Spectator.describe School::Domain do
       end
     end
   end
+
+  context "#copy" do
+    before_each do
+      subject.assert(fact)
+      subject.add(rule)
+    end
+
+    it "shares the existing facts" do
+      copy = subject.copy
+      expect(copy.facts).to be(subject.facts)
+      expect(copy.facts.first).to be(subject.facts.first)
+    end
+
+    it "instantiates a new empty set of facts" do
+      copy = subject.copy(independent_facts: true)
+      expect(copy.facts).not_to be(subject.facts)
+      expect(copy.facts.size).to eq(0)
+    end
+
+    it "shares the existing rules" do
+      copy = subject.copy
+      expect(copy.rules).to be(subject.rules)
+      expect(copy.rules.first).to be(subject.rules.first)
+    end
+
+    it "instantiates a new empty set of rules" do
+      copy = subject.copy(independent_rules: true)
+      expect(copy.rules).not_to be(subject.rules)
+      expect(copy.rules.size).to eq(0)
+    end
+  end
 end

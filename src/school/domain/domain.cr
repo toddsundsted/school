@@ -79,6 +79,17 @@ module School
     protected def initialize(@rules : Set(Rule), @facts : Set(Fact) = Set(Fact).new)
     end
 
+    # Copies the domain.
+    #
+    # By default, facts and rules are *shared*.
+    #
+    def copy(independent_rules = false, independent_facts = false)
+      self.class.new(
+        independent_rules ? Set(Rule).new : @rules,
+        independent_facts ? Set(Fact).new : @facts,
+      )
+    end
+
     private record Match, rule : Rule, context : Context
 
     private def each_match(conditions : Array(BasePattern), bindings = Bindings.new, trace : TraceNode? = nil, &block : Context ->)
