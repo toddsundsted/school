@@ -25,7 +25,7 @@ Spectator.describe School::Domain do
 
   describe "#assert" do
     it "adds a fact to the domain" do
-      expect{subject.assert(fact)}.to change{subject.facts}
+      expect{subject.assert(fact)}.to change{subject.facts.dup}
       expect(subject.facts).to have(fact)
     end
 
@@ -47,7 +47,7 @@ Spectator.describe School::Domain do
       before_each { subject.assert(fact) }
 
       it "removes the fact from the domain" do
-        expect{subject.retract(fact)}.to change{subject.facts}
+        expect{subject.retract(fact)}.to change{subject.facts.dup}
         expect(subject.facts).not_to have(fact)
       end
     end
@@ -67,7 +67,7 @@ Spectator.describe School::Domain do
 
   describe "#add" do
     it "adds a rule to the domain" do
-      expect{subject.add(rule)}.to change{subject.rules}
+      expect{subject.add(rule)}.to change{subject.rules.dup}
       expect(subject.rules).to have(rule)
     end
 
@@ -75,7 +75,7 @@ Spectator.describe School::Domain do
       before_each { subject.add(rule) }
 
       it "does not add the rule to the domain" do
-        expect{subject.add(rule)}.not_to change{subject.rules}
+        expect{subject.add(rule)}.not_to change{subject.rules.dup}
       end
     end
   end
@@ -84,7 +84,7 @@ Spectator.describe School::Domain do
     before_each { subject.add(rule) }
 
     it "removes a rule from the domain" do
-      expect{subject.remove(rule)}.to change{subject.rules}
+      expect{subject.remove(rule)}.to change{subject.rules.dup}
       expect(subject.rules).not_to have(rule)
     end
 

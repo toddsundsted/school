@@ -25,7 +25,7 @@ module School
     # Returns the facts in the domain.
     #
     def facts
-      @facts.dup
+      @facts
     end
 
     # Adds a fact to the domain.
@@ -47,7 +47,7 @@ module School
     # Returns the rules in the domain.
     #
     def rules
-      @rules.dup
+      @rules
     end
 
     # Adds a rule to the domain.
@@ -126,7 +126,7 @@ module School
 
     private def match_all
       @matches = false
-      rules.each do |rule|
+      rules.dup.each do |rule|
         if rule.trace
           root = Trace.root
           root.rule(rule)
