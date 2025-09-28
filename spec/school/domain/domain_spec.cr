@@ -101,9 +101,9 @@ Spectator.describe School::Domain do
     let(output) { [] of School::DomainTypes }
 
     let(action) do
-      School::Action.new do |rule, bindings|
+      School::Action.new do |rule, context|
         terms = ["#{rule.name}:"]
-        terms += bindings.map { |k, v| "#{k}=#{v}" }
+        terms += context.bindings.map { |k, v| "#{k}=#{v}" }
         output << terms.join(" ")
       end
     end

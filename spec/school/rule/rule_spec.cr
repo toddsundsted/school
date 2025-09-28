@@ -26,17 +26,21 @@ Spectator.describe School::Rule do
     subject do
       School.rule "" do
         condition var("a"), MockRelationship, var("b")
-        action { |rule, bindings| output.concat(bindings.keys) }
-        action { |rule, bindings| output.concat(bindings.values) }
+        action { |rule, context| output.concat(context.bindings.keys) }
+        action { |rule, context| output.concat(context.bindings.values) }
       end
     end
 
     let(bindings) { School::Bindings{"a" => "A", "b" => "B"} }
 
+    let(facts) { Set(School::Fact).new }
+
+    let(context) { School::Context.new(bindings, facts) }
+
     let(output) { [] of School::DomainTypes }
 
     it "invokes the actions" do
-      expect{subject.call(bindings)}.to change{output.dup}.to(["a", "b", "A", "B"])
+      expect{subject.call(context)}.to change{output.dup}.to(["a", "b", "A", "B"])
     end
   end
 end

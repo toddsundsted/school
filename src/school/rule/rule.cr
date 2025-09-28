@@ -3,7 +3,7 @@ require "./pattern"
 module School
   # An action.
   #
-  alias Action = (Rule, Bindings)->
+  alias Action = (Rule, Context)->
 
   # A rule is collection of conditions (patterns) that match against
   # facts, and associated actions.
@@ -34,8 +34,9 @@ module School
 
     # Invokes the rule's actions.
     #
-    def call(bindings : Bindings)
-      @actions.each(&.call(self, bindings.dup))
+    def call(context : Context)
+      new_context = Context.new(context.bindings.dup, context.facts)
+      @actions.each(&.call(self, new_context))
     end
   end
 end

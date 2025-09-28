@@ -316,11 +316,11 @@ Spectator.describe School::Rule::Builder do
     # given a proc
 
     it "adds an action to the rule" do
-      expect{subject.action(->(r : School::Rule, b : School::Bindings) {})}.to change{subject.build.actions.size}
+      expect{subject.action(->(r : School::Rule, c : School::Context) {})}.to change{subject.build.actions.size}
     end
 
     it "adds an action to the rule" do
-      expect(subject.action(->(r : School::Rule, b : School::Bindings) {}).build.actions.first).to be_a(School::Action)
+      expect(subject.action(->(r : School::Rule, c : School::Context) {}).build.actions.first).to be_a(School::Action)
     end
   end
 

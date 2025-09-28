@@ -79,9 +79,9 @@ module School
     protected def initialize(@rules : Set(Rule), @facts : Set(Fact) = Set(Fact).new)
     end
 
-    private record Match, rule : Rule, bindings : Bindings
+    private record Match, rule : Rule, context : Context
 
-    private def each_match(conditions : Array(BasePattern), bindings = Bindings.new, trace : TraceNode? = nil, &block : Bindings ->)
+    private def each_match(conditions : Array(BasePattern), bindings = Bindings.new, trace : TraceNode? = nil, &block : Context ->)
       if (condition = conditions.first?)
         {% if flag?(:"school:metrics") %}
           Metrics.count_condition
@@ -108,7 +108,8 @@ module School
       else
         # matching succeeds if there are no more conditions left to check
         trace.succeed if trace
-        block.call(bindings)
+        context = Context.new(bindings, @facts)
+        block.call(context)
       end
     end
 
@@ -124,8 +125,8 @@ module School
           {% if flag?(:"school:metrics") %}
             Metrics.count_rule
           {% end %}
-          each_match(rule.conditions, trace: node) do |bindings|
-            matches << Match.new(rule, bindings)
+          each_match(rule.conditions, trace: node) do |context|
+            matches << Match.new(rule, context)
           end
         end.each do |match|
           @matches = true
@@ -160,7 +161,7 @@ module School
         Metrics.count_run
       {% end %}
       match_all do |match|
-        match.rule.call(match.bindings)
+        match.rule.call(match.context)
       end
     end
   end
