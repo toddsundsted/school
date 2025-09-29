@@ -223,6 +223,17 @@ module School
       end
     end
 
+    # Asserts the associated `Fact`.
+    #
+    def self.assert(context : Context)
+      context.facts.add?(F.new)
+    end
+
+    # Retracts the associated `Fact`.
+    #
+    def self.retract(context : Context)
+      context.facts.delete(F.new)
+    end
   end
 
   # A pattern that matches a fact with one argument.
@@ -276,6 +287,17 @@ module School
       F.new(c)
     end
 
+    # Asserts the associated `Fact`.
+    #
+    def self.assert(c : F::C | Lit | Var, context : Context)
+      context.facts.add?(new_fact(c, context.bindings))
+    end
+
+    # Retracts the associated `Fact`.
+    #
+    def self.retract(c : F::C | Lit | Var, context : Context)
+      context.facts.delete(new_fact(c, context.bindings))
+    end
   end
 
   # A pattern that matches a fact with two arguments.
@@ -344,6 +366,17 @@ module School
       F.new(a, b)
     end
 
+    # Asserts the associated `Fact`.
+    #
+    def self.assert(a : F::A | Lit | Var, b : F::B | Lit | Var, context : Context)
+      context.facts.add?(new_fact(a, b, context.bindings))
+    end
+
+    # Retracts the associated `Fact`.
+    #
+    def self.retract(a : F::A | Lit | Var, b : F::B | Lit | Var, context : Context)
+      context.facts.delete(new_fact(a, b, context.bindings))
+    end
   end
 
   # A pattern that wraps a proc.

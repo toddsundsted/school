@@ -227,6 +227,126 @@ module School
         self
       end
 
+      def assert(f : Fact.class)
+        @actions << Action.new { |rule, context| typeof(NullaryPattern.new(f)).assert(context) }
+        self
+      end
+
+      def assert(f : Fact.class, m)
+        @actions << Action.new { |rule, context| typeof(UnaryPattern.new(f, m)).assert(m, context) }
+        self
+      end
+
+      def assert(m, f : Fact.class)
+        @actions << Action.new { |rule, context| typeof(UnaryPattern.new(f, m)).assert(m, context) }
+        self
+      end
+
+      def assert(f : Fact.class, m1, m2)
+        @actions << Action.new { |rule, context| typeof(BinaryPattern.new(f, m1, m2)).assert(m1, m2, context) }
+        self
+      end
+
+      def assert(m1, f : Fact.class, m2)
+        @actions << Action.new { |rule, context| typeof(BinaryPattern.new(f, m1, m2)).assert(m1, m2, context) }
+        self
+      end
+
+      def assert(m1, m2, f : Fact.class)
+        @actions << Action.new { |rule, context| typeof(BinaryPattern.new(f, m1, m2)).assert(m1, m2, context) }
+        self
+      end
+
+      def assert(p : Pattern.class, **options)
+        @actions << Action.new { |rule, context| p.assert(context, **options) }
+        self
+      end
+
+      def assert(p : Pattern.class, m, **options)
+        @actions << Action.new { |rule, context| p.assert(m, context, **options) }
+        self
+      end
+
+      def assert(m, p : Pattern.class, **options)
+        @actions << Action.new { |rule, context| p.assert(m, context, **options) }
+        self
+      end
+
+      def assert(p : Pattern.class, m1, m2, **options)
+        @actions << Action.new { |rule, context| p.assert(m1, m2, context, **options) }
+        self
+      end
+
+      def assert(m1, p : Pattern.class, m2, **options)
+        @actions << Action.new { |rule, context| p.assert(m1, m2, context, **options) }
+        self
+      end
+
+      def assert(m1, m2, p : Pattern.class, **options)
+        @actions << Action.new { |rule, context| p.assert(m1, m2, context, **options) }
+        self
+      end
+
+      def retract(f : Fact.class)
+        @actions << Action.new { |rule, context| typeof(NullaryPattern.new(f)).retract(context) }
+        self
+      end
+
+      def retract(f : Fact.class, m)
+        @actions << Action.new { |rule, context| typeof(UnaryPattern.new(f, m)).retract(m, context) }
+        self
+      end
+
+      def retract(m, f : Fact.class)
+        @actions << Action.new { |rule, context| typeof(UnaryPattern.new(f, m)).retract(m, context) }
+        self
+      end
+
+      def retract(f : Fact.class, m1, m2)
+        @actions << Action.new { |rule, context| typeof(BinaryPattern.new(f, m1, m2)).retract(m1, m2, context) }
+        self
+      end
+
+      def retract(m1, f : Fact.class, m2)
+        @actions << Action.new { |rule, context| typeof(BinaryPattern.new(f, m1, m2)).retract(m1, m2, context) }
+        self
+      end
+
+      def retract(m1, m2, f : Fact.class)
+        @actions << Action.new { |rule, context| typeof(BinaryPattern.new(f, m1, m2)).retract(m1, m2, context) }
+        self
+      end
+
+      def retract(p : Pattern.class, **options)
+        @actions << Action.new { |rule, context| p.retract(context, **options) }
+        self
+      end
+
+      def retract(p : Pattern.class, m, **options)
+        @actions << Action.new { |rule, context| p.retract(m, context, **options) }
+        self
+      end
+
+      def retract(m, p : Pattern.class, **options)
+        @actions << Action.new { |rule, context| p.retract(m, context, **options) }
+        self
+      end
+
+      def retract(p : Pattern.class, m1, m2, **options)
+        @actions << Action.new { |rule, context| p.retract(m1, m2, context, **options) }
+        self
+      end
+
+      def retract(m1, p : Pattern.class, m2, **options)
+        @actions << Action.new { |rule, context| p.retract(m1, m2, context, **options) }
+        self
+      end
+
+      def retract(m1, m2, p : Pattern.class, **options)
+        @actions << Action.new { |rule, context| p.retract(m1, m2, context, **options) }
+        self
+      end
+
       def action(&action : Action)
         @actions << action
         self
