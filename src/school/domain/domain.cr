@@ -19,9 +19,6 @@ module School
   # A domain is a collection of facts.
   #
   class Domain
-    @changed = false
-    @facts = Set(Fact).new
-
     # Returns the facts in the domain.
     #
     def facts
@@ -31,7 +28,6 @@ module School
     # Adds a fact to the domain.
     #
     def assert(fact : Fact) : Fact
-      @changed = true
       @facts.add?(fact) || raise ArgumentError.new("already asserted")
       fact
     end
@@ -39,7 +35,6 @@ module School
     # Removes a fact from the domain.
     #
     def retract(fact : Fact) : Fact
-      @changed = true
       @facts.delete(fact) || raise ArgumentError.new("already retracted")
       fact
     end
@@ -54,7 +49,6 @@ module School
     #
     def add(rule : Rule) : Rule
       @rules.add(rule)
-      @changed = true
       rule
     end
 
@@ -62,7 +56,6 @@ module School
     #
     def remove(rule : Rule) : Rule
       @rules.delete(rule) || raise ArgumentError.new("rule not in domain")
-      @changed = true
       rule
     end
 
@@ -98,7 +91,7 @@ module School
           Metrics.count_condition
         {% end %}
         any_matches = false
-        context = Context.new(bindings, facts)
+        context = Context.new(bindings, @facts)
         condition.match(context, trace) do |temporary|
           any_matches = true
           if temporary
